@@ -1,2 +1,2 @@
-# loss-per-learning-rate
-A simple PyTorch tool to study loss per learning rate
+[About]
+PyTorch utilities for studying the effects of different learning rates.

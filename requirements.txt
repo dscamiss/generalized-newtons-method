@@ -1,0 +1,5 @@
+jaxtyping==0.2.36
+matplotlib==3.9.3
+numpy==1.24.3
+torch==2.3.0
+typeguard==2.13.3
