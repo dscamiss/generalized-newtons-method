@@ -1,6 +1,6 @@
 ## About
 
-PyTorch utilities for studying the effects of different learning rates (still WIP).
+Simple PyTorch utilities for studying the effects of different learning rates (still WIP).
 
 ## Features
 
@@ -17,38 +17,62 @@ PyTorch utilities for studying the effects of different learning rates (still WI
 
 ```bash
 git clone https://github.com/dscamiss/learning-rate-utils
-cd learning-rate-utils
 pip install learning-rate-utils
 ```
 ## Examples
 
 For more detail, see the [examples](https://github.com/dscamiss/learning-rate-utils/blob/master/examples/) directory.
 
-### Fully-connected
+### Fully-connected neural network
 
-We can plot the loss per learning rate for an untrained fully-connected neural network.
+We can plot the loss per learning rate for varying input/output data fed to an untrained fully-connected neural network.
 
 ```python
-    learning_rates = list(np.linspace(0.0, 1.0, 100))
-    losses = np.ndarray((len(learning_rates), 10))
+batch_size = 32
+input_dim = 4
+hidden_layer_dims = [32]
+output_dim = 8
 
-    model = FullyConnected(input_dim, hidden_layer_dims, output_dim)
-    criterion = nn.MSELoss()
-    optimizer = torch.optim.SGD(model.parameters())
+learning_rates = list(np.linspace(0.0, 1.0, 100))
+losses = np.ndarray((len(learning_rates), 10))
 
-    for i in range(losses.shape[-1]):
-        x = 4.0 * torch.randn(batch_size, input_dim)  # Constant factor for larger errors
-        y = torch.randn(batch_size, output_dim)
-        losses[:, i] = loss_per_learning_rate(model, x, y, criterion, optimizer, learning_rates)
+model = FullyConnected(input_dim, hidden_layer_dims, output_dim)
+criterion = nn.MSELoss()
+optimizer = torch.optim.SGD(model.parameters())
+
+for i in range(losses.shape[-1]):
+    x = 4.0 * torch.randn(batch_size, input_dim)  # Constant factor for larger errors
+    y = torch.randn(batch_size, output_dim)
+    losses[:, i] = loss_per_learning_rate(model, x, y, criterion, optimizer, learning_rates)
 ```
 
 Plotting `losses` gives
 
-![Fully-connected example](https://github.com/dscamiss/learning-rate-utils/blob/master/examples/figures/fully_connected_untrained.png)
+![Fully-connected example](https://github.com/dscamiss/learning-rate-utils/blob/main/examples/figures/fully_connected_untrained.png)
 
-### CNN
+### Shallow CNN
+
+We can plot the loss per learning rate for varying input/output data fed to an untrained shallow CNN.
+
+```python
+learning_rates = list(np.linspace(0.0, 1.0, 100))
+losses = np.ndarray((len(learning_rates), 10))
+
+model = ShallowCNN()
+criterion = nn.NLLLoss()
+optimizer = torch.optim.SGD(model.parameters())
+
+for i in range(losses.shape[-1]):
+    x, y = next(iter(train_loader))
+    losses[:, i] = loss_per_learning_rate(model, x, y, criterion, optimizer, learning_rates)
+```
 
 Plotting `losses` gives
 
-![Fully-connected example (untrained)](https://github.com/dscamiss/learning-rate-utils/blob/main/examples/figures/simple_cnn_untrained.png)
-![Fully-connected example (trained)](https://github.com/dscamiss/learning-rate-utils/blob/main/examples/figures/simple_cnn_trained.png)
+![Shallow CNN example (untrained)](https://github.com/dscamiss/learning-rate-utils/blob/main/examples/figures/shallow_cnn_untrained.png)
+
+Repeating the experiment after loading trained weights gives
+
+![Shallow CNN example (trained)](https://github.com/dscamiss/learning-rate-utils/blob/main/examples/figures/shallow_cnn_trained.png)
+
+In this case, the model was trained for MNIST digit classification.
