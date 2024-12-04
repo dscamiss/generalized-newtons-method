@@ -1,4 +1,4 @@
-"""Example: Convolutional neural network (CNN)."""
+"""Example: Shallow convolutional neural network (CNN)."""
 
 from pathlib import Path
 
@@ -17,8 +17,8 @@ from learning_rate_utils import loss_per_learning_rate
 plt.rcParams["text.usetex"] = True
 
 
-class SimpleCNN(nn.Module):
-    """Simple CNN based on the PyTorch MNIST example.
+class ShallowCNN(nn.Module):
+    """Shallow CNN based on the PyTorch MNIST example.
 
     Reference:
         https://github.com/pytorch/examples/blob/main/mnist/main.py
@@ -77,7 +77,7 @@ def run_demo() -> None:
     # - Input/output data varies in each loop iteration
     # - Model parameters are fixed
 
-    model = SimpleCNN()
+    model = ShallowCNN()
     criterion = nn.NLLLoss()
     optimizer = torch.optim.SGD(model.parameters())
 
@@ -89,14 +89,14 @@ def run_demo() -> None:
     plt.plot(learning_rates, losses)
     plt.xlabel("learning rate")
     plt.ylabel("loss")
-    plt.title("Simple CNN example (untrained)")
+    plt.title("Shallow CNN example (untrained)")
     plt.show(block=False)
 
     # Example 2: Trained model
     # - Input/output data varies in each loop iteration
     # - Model parameters are fixed
 
-    model = SimpleCNN()
+    model = ShallowCNN()
     model.load_state_dict(torch.load(model_filename, weights_only=True))
     criterion = nn.NLLLoss()
     optimizer = torch.optim.SGD(model.parameters())
@@ -109,7 +109,7 @@ def run_demo() -> None:
     plt.plot(learning_rates, losses)
     plt.xlabel("learning rate")
     plt.ylabel("loss")
-    plt.title("Simple CNN example (trained)")
+    plt.title("Shallow CNN example (trained)")
     plt.show()
 
 
