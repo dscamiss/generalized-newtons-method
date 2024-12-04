@@ -1,6 +1,6 @@
 ## About
 
-Simple PyTorch utilities for studying the effects of different learning rates (still WIP).
+Simple PyTorch utilities for studying the effects of different learning rates (still very much WIP).
 
 ## Features
 
