@@ -17,7 +17,7 @@ Simple PyTorch utilities for studying the effects of different learning rates (s
 
 ```bash
 git clone https://github.com/dscamiss/learning-rate-utils
-pip install learning-rate-utils
+pip install learning-rate-utils/
 ```
 ## Examples
 
