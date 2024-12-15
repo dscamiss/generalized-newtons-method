@@ -59,8 +59,6 @@ class ShallowCNN(nn.Module):
 
 def run_demo() -> None:
     """Run loss per learning rate demo."""
-    set_seed()
-
     dataset_dir = Path(__file__).resolve().parent / "mnist_data"
     model_filename = dataset_dir / "mnist_cnn.pt"
 
@@ -114,4 +112,5 @@ def run_demo() -> None:
 
 
 if __name__ == "__main__":
+    set_seed(11)
     run_demo()
