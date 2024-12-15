@@ -1,6 +1,7 @@
 """Compute loss per learning rate."""
 
 import copy
+from collections.abc import Callable
 from typing import Union
 
 import torch
@@ -9,6 +10,9 @@ from torch import Tensor, nn
 from typeguard import typechecked as typechecker
 
 _OutputDataType = Union[Float[Tensor, "b ..."], Integer[Tensor, "b ..."]]
+_TorchLossType = torch.nn.modules.loss._Loss  # pylint: disable=protected-access
+_CustomCriterionType = Callable[[Float[Tensor, "..."], Float[Tensor, "..."]], Float[Tensor, ""]]
+_CriterionType = Union[_TorchLossType, _CustomCriterionType]
 
 
 @jaxtyped(typechecker=typechecker)
@@ -16,7 +20,7 @@ def loss_per_learning_rate(
     model: nn.Module,
     x: Float[Tensor, "b ..."],
     y: _OutputDataType,
-    criterion: torch.nn.modules.loss._Loss,
+    criterion: _CriterionType,
     optimizer: torch.optim.Optimizer,
     learning_rates: list[float],
     init_gradients: bool = True,
@@ -64,6 +68,7 @@ def loss_per_learning_rate(
 
     # Compute initial parameter gradients, if required
     if init_gradients:
+        optimizer.zero_grad()  # Avoid gradient accumulation
         y_hat = model(x)
         loss = criterion(y_hat, y)
         loss.backward()
