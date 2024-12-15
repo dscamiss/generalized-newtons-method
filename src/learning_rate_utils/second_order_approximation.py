@@ -1,7 +1,8 @@
 """Second-order approximation of loss per learning rate (LPLR)."""
 
+# flake8: noqa=DCO010
+
 import torch
-from functorch import make_functional
 from jaxtyping import Float, jaxtyped
 from torch import Tensor, nn
 from typeguard import typechecked as typechecker
@@ -34,21 +35,15 @@ def second_order_approximation(
     Returns:
         Tuple containing scalar tensors with polynomial coefficients.
     """
-    # `func` implements the function <model parameters> -> y_hat
-    func, params = make_functional(model)
+    # Extract parameters from `model` to create the functional version
+    params = dict(model.named_parameters())
 
+    # Create wrapped loss function, parameterized by `params`
     def parameterized_loss(params):
-        """Implement the function <model parameters> -> loss.
-
-        Args:
-            params: Model parameters.
-
-        Returns:
-            Scalar tensor with loss value.
-        """
-        y_hat = func(params, x)
+        y_hat = torch.func.functional_call(model, params, (x,))
         return criterion(y_hat, y)
 
+    # Storage for polynomial coefficients
     coeff_0 = parameterized_loss(params)
     coeff_1 = torch.as_tensor(0.0)
     coeff_2 = torch.as_tensor(0.0)
@@ -57,13 +52,12 @@ def second_order_approximation(
     grad_params = torch.func.grad(parameterized_loss)(params)
     hess_params = torch.func.hessian(parameterized_loss)(params)
 
-    # Compute numerator and denominator of alpha_*
-    num_params = len(params)
+    # Compute first-order and second-order coefficients
     with torch.no_grad():
-        for i in range(num_params):
+        for i in grad_params.keys():
             grad_param_i = grad_params[i].flatten()
             coeff_1 += grad_param_i.norm() ** 2.0
-            for j in range(num_params):
+            for j in grad_params.keys():
                 grad_param_j = grad_params[j].flatten()
                 hess_ij = hess_params[i][j].reshape(grad_param_i.shape[0], grad_param_j.shape[0])
                 coeff_2 += grad_param_i @ hess_ij @ grad_param_j

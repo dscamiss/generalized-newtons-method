@@ -6,13 +6,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from common import FullyConnected, set_seed
 from jaxtyping import Float, jaxtyped
 from torch import Tensor, nn
 from typeguard import typechecked as typechecker
 
 import learning_rate_utils as lru
-
-from common import FullyConnected, set_seed
 
 _DEFAULT_LEARNING_RATE = 1e-3
 
