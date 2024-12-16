@@ -13,7 +13,7 @@ plt.rcParams["text.usetex"] = True
 
 def run_demo() -> None:
     """Run loss per learning rate demo."""
-    learning_rates = np.linspace(0.0, 1.0, 20)
+    learning_rates = np.linspace(0.0, 1.0, 100)
     losses = np.ndarray((len(learning_rates), 10))
 
     # Example: Untrained model

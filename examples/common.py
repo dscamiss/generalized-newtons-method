@@ -28,6 +28,10 @@ class FullyConnected(nn.Module):
         negative_slope: float = 0.0,
     ):
         super().__init__()
+        self.input_dim = input_dim
+        self.hidden_layer_dims = hidden_layer_dims
+        self.output_dim = output_dim
+        self.negative_slope = negative_slope
 
         layers = []
 

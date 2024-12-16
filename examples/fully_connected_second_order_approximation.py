@@ -79,13 +79,13 @@ def run_demo():
     fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2)
 
     ax1.plot(learning_rates_macro, lplr_macro)
-    ax1.plot(learning_rates_macro, lplr_approx_macro, '--', color='lime')
+    ax1.plot(learning_rates_macro, lplr_approx_macro, "--", color="lime")
     ax1.set_xlabel("learning rate")
     ax1.set_ylabel("loss")
     ax1.set_title("Macro")
 
     ax2.plot(learning_rates_detail, lplr_detail)
-    ax2.plot(learning_rates_detail, lplr_approx_detail, '--', color='lime')
+    ax2.plot(learning_rates_detail, lplr_approx_detail, "--", color="lime")
     ax2.set_xlabel("learning rate")
     ax2.set_ylabel("loss")
     ax2.set_title("Detail near 0")

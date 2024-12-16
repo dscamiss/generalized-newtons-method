@@ -24,7 +24,7 @@ from numpy.typing import NDArray
 from torch import Tensor, linalg, nn
 from typeguard import typechecked as typechecker
 
-from learning_rate_utils.loss_per_learning_rate import _CriterionType
+from learning_rate_utils.types import CriterionType
 
 
 @jaxtyped(typechecker=typechecker)
@@ -46,7 +46,7 @@ def norm_of_tensor_dict(
 
 @jaxtyped(typechecker=typechecker)
 def first_order_approximation_coeffs(
-    model: nn.Module, criterion: _CriterionType, x: Float[Tensor, "..."], y: Float[Tensor, "..."]
+    model: nn.Module, criterion: CriterionType, x: Float[Tensor, "..."], y: Float[Tensor, "..."]
 ) -> tuple[Float[Tensor, ""], ...]:
     """Compute coefficients of first-order Taylor series approximation.
 
@@ -84,7 +84,7 @@ def first_order_approximation_coeffs(
 @jaxtyped(typechecker=typechecker)
 def first_order_approximation(
     model: nn.Module,
-    criterion: _CriterionType,
+    criterion: CriterionType,
     x: Float[Tensor, "..."],
     y: Float[Tensor, "..."],
     learning_rates: NDArray,
@@ -108,7 +108,7 @@ def first_order_approximation(
 
 @jaxtyped(typechecker=typechecker)
 def second_order_approximation_coeffs(
-    model: nn.Module, criterion: _CriterionType, x: Float[Tensor, "..."], y: Float[Tensor, "..."]
+    model: nn.Module, criterion: CriterionType, x: Float[Tensor, "..."], y: Float[Tensor, "..."]
 ) -> tuple[Float[Tensor, ""], ...]:
     """Compute coefficients of second-order Taylor series approximation.
 
@@ -140,7 +140,7 @@ def second_order_approximation_coeffs(
         hess_params_dict = torch.func.hessian(parameterized_loss)(params_dict)
 
         # Compute first-order coefficient
-        coeff_1 = sum(grad_param.norm() ** 2.0 for grad_param in grad_params_dict.values())
+        coeff_1 = norm_of_tensor_dict(grad_params_dict)
 
         # Compute second-order coefficient
         # - TODO: Can we make the Hessian-vector product more efficient?  For
@@ -159,7 +159,7 @@ def second_order_approximation_coeffs(
 @jaxtyped(typechecker=typechecker)
 def second_order_approximation(
     model: nn.Module,
-    criterion: _CriterionType,
+    criterion: CriterionType,
     x: Float[Tensor, "..."],
     y: Float[Tensor, "..."],
     learning_rates: NDArray,
