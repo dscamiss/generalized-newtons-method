@@ -44,11 +44,13 @@ def fixture_model(input_dim: int, output_dim: int) -> nn.Module:
 @jaxtyped(typechecker=typechecker)
 def fixture_criterion(output_dim: int) -> CustomCriterionType:  # pylint: disable=unused-argument
     """Criterion `nn.MSELoss()` with custom normalization."""
+
     @jaxtyped(typechecker=typechecker)
     def criterion(  # noqa
         y_hat: Float[Tensor, "b output_dim"], y: Float[Tensor, "b output_dim"]
     ) -> Float[Tensor, ""]:
         return nn.MSELoss(reduction="sum")(y_hat, y) / (2.0 * y_hat.shape[0])
+
     return criterion
 
 
