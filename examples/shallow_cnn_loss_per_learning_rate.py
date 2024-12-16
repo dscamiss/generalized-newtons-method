@@ -68,7 +68,7 @@ def run_demo() -> None:
     train_dataset = datasets.MNIST(dataset_dir, train=True, download=True, transform=transform)
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=64)
 
-    learning_rates = list(np.linspace(0.0, 1.0, 100))
+    learning_rates = np.linspace(0.0, 1.0, 50)
     losses = np.ndarray((len(learning_rates), 10))
 
     # Example 1: Untrained model
@@ -81,7 +81,7 @@ def run_demo() -> None:
 
     for i in range(losses.shape[-1]):
         x, y = next(iter(train_loader))
-        losses[:, i] = loss_per_learning_rate(model, x, y, criterion, optimizer, learning_rates)
+        losses[:, i] = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates)
 
     plt.figure()
     plt.plot(learning_rates, losses)
@@ -101,7 +101,7 @@ def run_demo() -> None:
 
     for i in range(losses.shape[-1]):
         x, y = next(iter(train_loader))
-        losses[:, i] = loss_per_learning_rate(model, x, y, criterion, optimizer, learning_rates)
+        losses[:, i] = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates)
 
     plt.figure()
     plt.plot(learning_rates, losses)

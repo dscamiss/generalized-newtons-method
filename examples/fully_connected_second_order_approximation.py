@@ -15,6 +15,8 @@ import learning_rate_utils as lru
 
 _DEFAULT_LEARNING_RATE = 1e-3
 
+plt.rcParams["text.usetex"] = True
+
 
 @jaxtyped(typechecker=typechecker)
 def compute_alpha_star(coeffs: tuple[Float[Tensor, ""], ...]) -> Float[Tensor, ""]:
@@ -53,57 +55,45 @@ def run_demo():
     # Make fully-connected model
     model = FullyConnected(input_dim, hidden_layer_dims, output_dim, negative_slope)
 
-    # Make MSE criterion with different normalization
-    @jaxtyped(typechecker=typechecker)
-    def criterion(y_hat: Float[Tensor, "..."], y: Float[Tensor, "..."]) -> Float[Tensor, ""]:
-        return nn.MSELoss()(y_hat, y) / 2.0
+    # Make MSE criterion with different normalization vs. default
+    criterion = nn.MSELoss()
 
-    # Get second-order approximation coefficients
-    coeffs = lru.second_order_approximation(model, criterion, x, y)
-
-    # Compute alpha_* using the approximation coefficients
-    alpha_star = compute_alpha_star(coeffs)
-
-    # Set up for plots
+    # Make standard gradient descent optimizer
     optimizer = torch.optim.SGD(model.parameters())
-    lplr_approx_coeffs = [coeff.detach().numpy() for coeff in coeffs][::-1]
 
-    # Second-order approximation vs loss per learning rate (macro)
-    learning_rates_macro = list(np.linspace(0.0, 2.0 * alpha_star, 100))
-    lplr_macro = lru.loss_per_learning_rate(model, x, y, criterion, optimizer, learning_rates_macro)
-    lplr_approx_macro = np.poly1d(lplr_approx_coeffs)(learning_rates_macro)
+    # Compute macro second-order approximation
+    learning_rates_macro = np.linspace(0.0, 5.0, 20)
+    lplr_macro = lru.loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates_macro)
+    lplr_approx_macro = lru.second_order_approximation(model, criterion, x, y, learning_rates_macro)
 
-    # Second-order approximation vs loss per learning rate (detail near 0)
-    learning_rates_detail = list(np.linspace(0.0, 0.1, 100))
+    # Compute detailed second-order approximation near zero
+    learning_rates_detail = np.linspace(0.0, 0.1, 20)
     lplr_detail = lru.loss_per_learning_rate(
-        model, x, y, criterion, optimizer, learning_rates_detail
+        model, criterion, optimizer, x, y, learning_rates_detail
     )
-    lplr_approx_detail = np.poly1d(lplr_approx_coeffs)(learning_rates_detail)
+    lplr_approx_detail = lru.second_order_approximation(
+        model, criterion, x, y, learning_rates_detail
+    )
 
-    plt.subplot(1, 2, 1)
-    plt.plot(learning_rates_macro, lplr_macro)
-    plt.plot(learning_rates_macro, lplr_approx_macro)
-    plt.axvline(alpha_star, color="m", linestyle="--")
-    plt.xlabel("learning rate")
-    plt.ylabel("loss")
-    plt.title("Fully-connected example (untrained)")
+    # Make plots of macro and detailed second-order approximations
+    fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2)
 
-    plt.subplot(1, 2, 2)
-    plt.plot(learning_rates_detail, lplr_detail)
-    plt.plot(learning_rates_detail, lplr_approx_detail)
-    plt.xlabel("learning rate")
-    plt.ylabel("loss")
-    plt.title("Fully-connected example (untrained, detail near 0)")
+    ax1.plot(learning_rates_macro, lplr_macro)
+    ax1.plot(learning_rates_macro, lplr_approx_macro, '--', color='lime')
+    ax1.set_xlabel("learning rate")
+    ax1.set_ylabel("loss")
+    ax1.set_title("Macro")
+
+    ax2.plot(learning_rates_detail, lplr_detail)
+    ax2.plot(learning_rates_detail, lplr_approx_detail, '--', color='lime')
+    ax2.set_xlabel("learning rate")
+    ax2.set_ylabel("loss")
+    ax2.set_title("Detail near 0")
+
+    fig.tight_layout()
+    fig.suptitle("Fully-connected example (untrained)")
 
     plt.show()
-
-    if batch_size == 1 and not hidden_layer_dims and negative_slope == 0.0:
-        # Compare to expected (theoretical) value of alpha_* for this case
-        alpha_star_expected = 1.0 / (1.0 + (x[0].norm() ** 2.0))
-        print(f"alpha_* actual   = {alpha_star}")
-        print(f"alpha_* expected = {alpha_star_expected}")
-    else:
-        print(f"alpha_* = {alpha_star}")
 
 
 if __name__ == "__main__":

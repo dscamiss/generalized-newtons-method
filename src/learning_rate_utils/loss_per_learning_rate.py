@@ -1,11 +1,13 @@
-"""Compute loss per learning rate."""
+"""Compute loss-per-learning-rate."""
 
 import copy
+import numpy as np
 from collections.abc import Callable
 from typing import Union
 
 import torch
 from jaxtyping import Float, Integer, jaxtyped
+from numpy.typing import NDArray
 from torch import Tensor, nn
 from typeguard import typechecked as typechecker
 
@@ -18,14 +20,14 @@ _CriterionType = Union[_TorchLossType, _CustomCriterionType]
 @jaxtyped(typechecker=typechecker)
 def loss_per_learning_rate(
     model: nn.Module,
-    x: Float[Tensor, "b ..."],
-    y: _OutputDataType,
     criterion: _CriterionType,
     optimizer: torch.optim.Optimizer,
-    learning_rates: list[float],
+    x: Float[Tensor, "b ..."],
+    y: _OutputDataType,
+    learning_rates: NDArray,
     init_gradients: bool = True,
-) -> list[float]:
-    """Compute loss per learning rate.
+) -> NDArray:
+    """Compute loss-per-learning-rate.
 
     This function computes the loss values which would result from using
     each learning rate in specified set of learning rates, at a single step
@@ -33,12 +35,12 @@ def loss_per_learning_rate(
 
     Args:
         model: Network model.
-        x: Input tensor.
-        y: Output tensor.
         criterion: Loss criterion.
         optimizer: Optimizer for each trainable parameter in `model`.  The
             only constraint on `optimizer` is that each of its parameter groups
             uses the `lr` key for the learning rate.
+        x: Input tensor.
+        y: Output tensor (target).
         learning_rates: List of learning rates (must be non-empty).
         init_gradients: Run initial gradient computation (default = `True`).
 
@@ -56,7 +58,7 @@ def loss_per_learning_rate(
         No modification is made to the state of `optimizer`.
     """
     # Sanity check on `learning_rates` argument
-    if not learning_rates:
+    if len(learning_rates) == 0:
         raise ValueError("learning_rates is empty")
 
     # Sanity check on `optimizer` argument
@@ -64,7 +66,7 @@ def loss_per_learning_rate(
         if "lr" not in param_group:
             raise ValueError("optimizer is missing lr key")
 
-    losses = [None] * len(learning_rates)
+    losses = np.zeros(len(learning_rates))
 
     # Compute initial parameter gradients, if required
     if init_gradients:
