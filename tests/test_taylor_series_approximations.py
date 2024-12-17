@@ -6,7 +6,8 @@ from jaxtyping import Float, jaxtyped
 from torch import Tensor, nn
 from typeguard import typechecked as typechecker
 
-from examples.common import FullyConnected, set_seed
+from examples.common import set_seed
+from examples.fully_connected.fully_connected import FullyConnected
 from learning_rate_utils import second_order_approximation_coeffs
 from learning_rate_utils.types import CustomCriterionType
 

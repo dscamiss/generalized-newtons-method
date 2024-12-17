@@ -1,47 +1,17 @@
-"""Example: Fully-connected neural network."""
-
-# flake8: noqa: DCO010
-# pylint: disable=import-error
+"""Demo second-order approximation to loss-per-learning-rate."""
 
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from common import FullyConnected, set_seed
-from jaxtyping import Float, jaxtyped
-from torch import Tensor, nn
-from typeguard import typechecked as typechecker
+from torch import nn
 
 import learning_rate_utils as lru
-
-_DEFAULT_LEARNING_RATE = 1e-3
-
-plt.rcParams["text.usetex"] = True
-
-
-@jaxtyped(typechecker=typechecker)
-def compute_alpha_star(coeffs: tuple[Float[Tensor, ""], ...]) -> Float[Tensor, ""]:
-    """Helper function to compute alpha_* from approximation coefficients.
-
-    If alpha_* is not well-defined, then this function returns the default
-    learning rate `_DEFAULT_LEARNING_RATE`.
-
-    Args:
-        coeffs: Second-order approximation coefficients.
-
-    Returns:
-        Sclar tensor with alpha_*.
-    """
-    num, den = -coeffs[1], 2.0 * coeffs[2]
-    if den <= 0.0:
-        print(f"Using default learning rate since den = {den}")
-        alpha_star = torch.as_tensor(_DEFAULT_LEARNING_RATE)
-    else:
-        alpha_star = num / den
-    return alpha_star
+from examples.common import set_seed
+from examples.fully_connected.fully_connected import FullyConnected
 
 
 def run_demo():
-    """Run second-order approximation demo."""
+    """Run demo for a fully-connected neural network."""
     batch_size = 16
     input_dim = 8
     hidden_layer_dims = [64, 32, 16, 8]
@@ -55,7 +25,7 @@ def run_demo():
     # Make fully-connected model
     model = FullyConnected(input_dim, hidden_layer_dims, output_dim, negative_slope)
 
-    # Make MSE criterion with different normalization vs. default
+    # Make MSE criterion
     criterion = nn.MSELoss()
 
     # Make standard gradient descent optimizer
@@ -78,20 +48,27 @@ def run_demo():
     # Make plots of macro and detailed second-order approximations
     fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2)
 
-    ax1.plot(learning_rates_macro, lplr_macro)
-    ax1.plot(learning_rates_macro, lplr_approx_macro, "--", color="lime")
+    ax1.plot(learning_rates_macro, lplr_macro, label="loss per learning rate")
+    ax1.plot(
+        learning_rates_macro, lplr_approx_macro, "--", color="lime", label="second-order approx."
+    )
     ax1.set_xlabel("learning rate")
     ax1.set_ylabel("loss")
     ax1.set_title("Macro")
+    ax1.legend()
 
-    ax2.plot(learning_rates_detail, lplr_detail)
-    ax2.plot(learning_rates_detail, lplr_approx_detail, "--", color="lime")
+    ax2.plot(learning_rates_detail, lplr_detail, label="loss per learning rate")
+    ax2.plot(
+        learning_rates_detail, lplr_approx_detail, "--", color="lime", label="second-order approx."
+    )
     ax2.set_xlabel("learning rate")
     ax2.set_ylabel("loss")
     ax2.set_title("Detail near 0")
+    ax2.legend()
 
     fig.tight_layout()
-    fig.suptitle("Fully-connected example (untrained)")
+    fig.subplots_adjust(top=0.88)
+    fig.suptitle("Loss per learning rate (fully-connected, untrained)")
 
     plt.show()
 
@@ -99,4 +76,5 @@ def run_demo():
 if __name__ == "__main__":
     set_seed(11)
     torch.set_default_dtype(torch.float64)
+    plt.rcParams["text.usetex"] = True
     run_demo()
