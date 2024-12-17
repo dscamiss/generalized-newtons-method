@@ -144,7 +144,7 @@ def second_order_approximation_coeffs(
 
         # Compute second-order coefficient
         # - TODO: Can we make the Hessian-vector product more efficient?  For
-        #         example using `torch.autograd.functiona.hvp` or similar...
+        #         example using `torch.autograd.functional.hvp` or similar...
         for grad_param_name_1, grad_param_1 in grad_params_dict.items():
             grad_param_1 = grad_param_1.flatten()
             for grad_param_name_2, grad_param_2 in grad_params_dict.items():
