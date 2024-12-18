@@ -7,7 +7,7 @@ from torch import nn
 
 import learning_rate_utils as lru
 from examples.common import set_seed
-from examples.fully_connected.fully_connected import FullyConnected
+from examples.fully_connected import FullyConnected
 
 
 def run_demo():
@@ -20,9 +20,10 @@ def run_demo():
 
     # Make dummy data
     x = torch.randn(batch_size, input_dim)
-    y = torch.randn(batch_size, output_dim)
+    y = torch.randn(batch_size, output_dim) ** 2.0
 
     # Make fully-connected model
+    # - Note: Model applies ReLU activation at final layer
     model = FullyConnected(input_dim, hidden_layer_dims, output_dim, negative_slope)
 
     # Make MSE criterion
@@ -32,12 +33,12 @@ def run_demo():
     optimizer = torch.optim.SGD(model.parameters())
 
     # Compute macro second-order approximation
-    learning_rates_macro = np.linspace(0.0, 5.0, 20)
+    learning_rates_macro = np.linspace(0.0, 5.0, 100)
     lplr_macro = lru.loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates_macro)
     lplr_approx_macro = lru.second_order_approximation(model, criterion, x, y, learning_rates_macro)
 
     # Compute detailed second-order approximation near zero
-    learning_rates_detail = np.linspace(0.0, 0.1, 20)
+    learning_rates_detail = np.linspace(0.0, 0.1, 100)
     lplr_detail = lru.loss_per_learning_rate(
         model, criterion, optimizer, x, y, learning_rates_detail
     )
@@ -67,6 +68,7 @@ def run_demo():
     ax2.legend()
 
     fig.tight_layout()
+
     fig.subplots_adjust(top=0.88)
     fig.suptitle("Loss per learning rate (fully-connected, untrained)")
 

@@ -90,6 +90,7 @@ class Trainer:
         self.dataloader = DataLoader(self.dataset, batch_size=self.config.batch_size, shuffle=True)
 
         # Make model, loss criterion, and optimizer
+        # - Note: Model does not apply ReLU activation at final layer
         self.model = FullyConnected(self.config.input_dim, [64, 32], 1, 0.0, False).to(device)
         self.criterion = nn.MSELoss()
         self.optimizer = optim.SGD(self.model.parameters())

@@ -23,6 +23,7 @@ def run_demo() -> None:
     negative_slope = 0.01
 
     # Make fully-connected model
+    # - Note: Model applies ReLU activation at final layer
     model = FullyConnected(input_dim, hidden_layer_dims, output_dim, negative_slope)
 
     # Make MSE criterion
@@ -33,8 +34,8 @@ def run_demo() -> None:
 
     # Model parameters are fixed; make new dummy data for each plot
     for i in range(num_plots):
-        x = 10.0 * torch.randn(batch_size, input_dim)  # Constant factor for larger errors
-        y = torch.randn(batch_size, output_dim)
+        x = torch.randn(batch_size, input_dim)
+        y = torch.randn(batch_size, output_dim) ** 2.0
         losses[:, i] = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates)
 
     # Plot losses
