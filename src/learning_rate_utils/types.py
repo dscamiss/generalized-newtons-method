@@ -7,7 +7,7 @@ import torch
 from jaxtyping import Float, Integer
 from torch import Tensor
 
-OutputDataType = Union[Float[Tensor, "b ..."], Integer[Tensor, "b ..."]]
+OutputDataType = Union[Float[Tensor, "..."], Integer[Tensor, "..."]]
 TorchLossType = torch.nn.modules.loss._Loss  # pylint: disable=protected-access
 CustomCriterionType = Callable[[Float[Tensor, "..."], Float[Tensor, "..."]], Float[Tensor, ""]]
 CriterionType = Union[TorchLossType, CustomCriterionType]
