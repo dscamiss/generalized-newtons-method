@@ -24,7 +24,7 @@ from numpy.typing import NDArray
 from torch import Tensor, linalg, nn
 from typeguard import typechecked as typechecker
 
-from learning_rate_utils.types import CriterionType
+from learning_rate_utils.types import CriterionType, OutputDataType
 
 
 @jaxtyped(typechecker=typechecker)
@@ -46,7 +46,7 @@ def norm_of_tensor_dict(
 
 @jaxtyped(typechecker=typechecker)
 def first_order_approximation_coeffs(
-    model: nn.Module, criterion: CriterionType, x: Float[Tensor, "..."], y: Float[Tensor, "..."]
+    model: nn.Module, criterion: CriterionType, x: Float[Tensor, "..."], y: OutputDataType
 ) -> tuple[Float[Tensor, ""], ...]:
     """Compute coefficients of first-order Taylor series approximation.
 
@@ -86,7 +86,7 @@ def first_order_approximation(
     model: nn.Module,
     criterion: CriterionType,
     x: Float[Tensor, "..."],
-    y: Float[Tensor, "..."],
+    y: OutputDataType,
     learning_rates: NDArray,
 ) -> NDArray:
     """Evaluate first-order Taylor series approximation.
@@ -108,7 +108,7 @@ def first_order_approximation(
 
 @jaxtyped(typechecker=typechecker)
 def second_order_approximation_coeffs(
-    model: nn.Module, criterion: CriterionType, x: Float[Tensor, "..."], y: Float[Tensor, "..."]
+    model: nn.Module, criterion: CriterionType, x: Float[Tensor, "..."], y: OutputDataType
 ) -> tuple[Float[Tensor, ""], ...]:
     """Compute coefficients of second-order Taylor series approximation.
 
@@ -161,7 +161,7 @@ def second_order_approximation(
     model: nn.Module,
     criterion: CriterionType,
     x: Float[Tensor, "..."],
-    y: Float[Tensor, "..."],
+    y: OutputDataType,
     learning_rates: NDArray,
 ) -> NDArray:
     """Evaluate second-order Taylor series approximation.
