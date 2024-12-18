@@ -61,6 +61,7 @@ def loss_per_learning_rate(
         if "lr" not in param_group:
             raise ValueError("optimizer is missing lr key")
 
+    # Store one loss value for each learning rate
     losses = np.zeros(len(learning_rates))
 
     # Compute initial parameter gradients, if required
@@ -73,6 +74,9 @@ def loss_per_learning_rate(
     # Save model and optimizer states
     model_state_dict = copy.deepcopy(model.state_dict())
     optimizer_state_dict = copy.deepcopy(optimizer.state_dict())
+
+    # Ensure model is in evaluation mode (disables dropout etc.)
+    model.eval()
 
     for i, learning_rate in enumerate(learning_rates):
         # Update learning rate in each parameter group
@@ -90,6 +94,8 @@ def loss_per_learning_rate(
 
         # Restore model and optimizer states
         # - In particular, this restores parameter gradients computed earlier
+        #   and also restores the value of `model.training` which was possibly
+        #   modified by `model.eval()`
         model.load_state_dict(model_state_dict)
         optimizer.load_state_dict(optimizer_state_dict)
 

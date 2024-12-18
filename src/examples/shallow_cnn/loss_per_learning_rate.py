@@ -1,7 +1,7 @@
 """Demo loss-per-learning-rate."""
 
 # flake8: noqa=DCO010
-# pylint: disable=missing-function-docstring
+# pylint: disable=missing-function-docstring, not-callable
 
 from pathlib import Path
 
@@ -70,8 +70,9 @@ def run_demo_untrained(train_loader: torch.utils.data.DataLoader) -> None:
     optimizer = torch.optim.SGD(model.parameters())
 
     # Model parameters are fixed; load new data for each plot
-    for i in range(losses.shape[-1]):
-        x, y = next(iter(train_loader))
+    iter_train_loader = iter(train_loader)
+    for i in range(num_plots):
+        x, y = next(iter_train_loader)
         losses[:, i] = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates)
 
     # Plot losses
@@ -86,12 +87,14 @@ def run_demo_untrained(train_loader: torch.utils.data.DataLoader) -> None:
     plt.show(block=False)
 
 
-def run_demo_trained(train_loader: torch.utils.data.DataLoader, model_filename: Path) -> None:
+def run_demo_trained(
+    train_loader: torch.utils.data.DataLoader, trained_model_filename: Path
+) -> None:
     """Run demo for trained shallow CNN.
 
     Args:
         train_loader: Dataloader for MNIST training data.
-        model_filename: Trained model filename.
+        trained_model_filename: Trained model filename.
     """
     learning_rates = np.linspace(0.0, 0.5, 100)
     num_plots = 10
@@ -101,7 +104,7 @@ def run_demo_trained(train_loader: torch.utils.data.DataLoader, model_filename: 
     model = ShallowCNN()
 
     # Load trained weights
-    model.load_state_dict(torch.load(model_filename, weights_only=True))
+    model.load_state_dict(torch.load(trained_model_filename, weights_only=True))
 
     # Make negative log-likelihood criterion
     criterion = nn.NLLLoss()
@@ -110,8 +113,9 @@ def run_demo_trained(train_loader: torch.utils.data.DataLoader, model_filename: 
     optimizer = torch.optim.SGD(model.parameters())
 
     # Model parameters are fixed; load new data for each plot
+    iter_train_loader = iter(train_loader)
     for i in range(num_plots):
-        x, y = next(iter(train_loader))
+        x, y = next(iter_train_loader)
         losses[:, i] = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates)
 
     # Plot losses
@@ -136,14 +140,12 @@ def run_demo() -> None:
     train_dataset = datasets.MNIST(dataset_dir, train=True, download=True, transform=transform)
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=64)
 
-    # Trained model filename
-    model_filename = dataset_dir / "mnist_cnn.pt"
-
     # Example 1: Untrained model
     run_demo_untrained(train_loader)
 
     # Example 2: Trained model
-    run_demo_trained(train_loader, model_filename)
+    trained_model_filename = dataset_dir / "mnist_cnn.pt"
+    run_demo_trained(train_loader, trained_model_filename)
 
 
 if __name__ == "__main__":
