@@ -162,4 +162,4 @@ cython_debug/
 #.idea/
 
 # Downloaded data
-examples/shallow_cnn/mnist_data/MNIST
+src/examples/shallow_cnn/mnist_data/MNIST
