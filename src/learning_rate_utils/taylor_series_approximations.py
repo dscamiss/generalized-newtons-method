@@ -19,18 +19,18 @@ Note:
 
 import numpy as np
 import torch
-from jaxtyping import Float, jaxtyped
+from jaxtyping import Real, jaxtyped
 from numpy.typing import NDArray
 from torch import Tensor, linalg, nn
 from typeguard import typechecked as typechecker
 
-from learning_rate_utils.types import CriterionType, OutputDataType
+from learning_rate_utils.types import CriterionType
 
 
 @jaxtyped(typechecker=typechecker)
 def norm_of_tensor_dict(
-    tensor_dict: dict[str, Float[Tensor, "..."]], p: float = 2.0
-) -> Float[Tensor, ""]:
+    tensor_dict: dict[str, Real[Tensor, "..."]], p: float = 2.0
+) -> Real[Tensor, ""]:
     """Helper function to sum the norms of each tensor in a dictionary.
 
     Args:
@@ -46,8 +46,8 @@ def norm_of_tensor_dict(
 
 @jaxtyped(typechecker=typechecker)
 def first_order_approximation_coeffs(
-    model: nn.Module, criterion: CriterionType, x: Float[Tensor, "..."], y: OutputDataType
-) -> tuple[Float[Tensor, ""], ...]:
+    model: nn.Module, criterion: CriterionType, x: Real[Tensor, "..."], y: Real[Tensor, "..."]
+) -> tuple[Real[Tensor, ""], ...]:
     """Compute coefficients of first-order Taylor series approximation.
 
     Args:
@@ -85,8 +85,8 @@ def first_order_approximation_coeffs(
 def first_order_approximation(
     model: nn.Module,
     criterion: CriterionType,
-    x: Float[Tensor, "..."],
-    y: OutputDataType,
+    x: Real[Tensor, "..."],
+    y: Real[Tensor, "..."],
     learning_rates: NDArray,
 ) -> NDArray:
     """Evaluate first-order Taylor series approximation.
@@ -108,8 +108,8 @@ def first_order_approximation(
 
 @jaxtyped(typechecker=typechecker)
 def second_order_approximation_coeffs(
-    model: nn.Module, criterion: CriterionType, x: Float[Tensor, "..."], y: OutputDataType
-) -> tuple[Float[Tensor, ""], ...]:
+    model: nn.Module, criterion: CriterionType, x: Real[Tensor, "..."], y: Real[Tensor, "..."]
+) -> tuple[Real[Tensor, ""], ...]:
     """Compute coefficients of second-order Taylor series approximation.
 
     Args:
@@ -160,8 +160,8 @@ def second_order_approximation_coeffs(
 def second_order_approximation(
     model: nn.Module,
     criterion: CriterionType,
-    x: Float[Tensor, "..."],
-    y: OutputDataType,
+    x: Real[Tensor, "..."],
+    y: Real[Tensor, "..."],
     learning_rates: NDArray,
 ) -> NDArray:
     """Evaluate second-order Taylor series approximation.

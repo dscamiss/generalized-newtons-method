@@ -4,12 +4,12 @@ import copy
 
 import numpy as np
 import torch
-from jaxtyping import Float, jaxtyped
+from jaxtyping import Real, jaxtyped
 from numpy.typing import NDArray
 from torch import Tensor, nn
 from typeguard import typechecked as typechecker
 
-from learning_rate_utils.types import CriterionType, OutputDataType
+from learning_rate_utils.types import CriterionType
 
 
 @jaxtyped(typechecker=typechecker)
@@ -17,8 +17,8 @@ def loss_per_learning_rate(
     model: nn.Module,
     criterion: CriterionType,
     optimizer: torch.optim.Optimizer,
-    x: Float[Tensor, "..."],
-    y: OutputDataType,
+    x: Real[Tensor, "..."],
+    y: Real[Tensor, "..."],
     learning_rates: NDArray,
     init_gradients: bool = True,
 ) -> NDArray:

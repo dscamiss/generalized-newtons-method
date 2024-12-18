@@ -5,13 +5,13 @@
 from typing import Optional
 
 import torch
-from jaxtyping import Float, jaxtyped
+from jaxtyping import Real, jaxtyped
 from torch import Tensor, nn
 from torch.optim.lr_scheduler import LRScheduler
 from typeguard import typechecked as typechecker
 
 from learning_rate_utils.taylor_series_approximations import second_order_approximation_coeffs
-from learning_rate_utils.types import CriterionType, OutputDataType
+from learning_rate_utils.types import CriterionType
 
 
 class SecondOrderLRScheduler(LRScheduler):
@@ -50,7 +50,7 @@ class SecondOrderLRScheduler(LRScheduler):
     # Pylint complains that redefinition of step() has a different signature
     @jaxtyped(typechecker=typechecker)
     def step(  # pylint: disable=arguments-renamed
-        self, x: Optional[Float[Tensor, "..."]] = None, y: Optional[OutputDataType] = None
+        self, x: Optional[Real[Tensor, "..."]] = None, y: Optional[Real[Tensor, "..."]] = None
     ) -> list[float]:
         """Update learning rate(s) in the optimizer.
 
@@ -71,7 +71,7 @@ class SecondOrderLRScheduler(LRScheduler):
 
     @jaxtyped(typechecker=typechecker)
     def get_lr(
-        self, x: Optional[Float[Tensor, "..."]] = None, y: Optional[OutputDataType] = None
+        self, x: Optional[Real[Tensor, "..."]] = None, y: Optional[Real[Tensor, "..."]] = None
     ) -> list[float]:
         """Compute learning rate(s) for a particular batch.
 

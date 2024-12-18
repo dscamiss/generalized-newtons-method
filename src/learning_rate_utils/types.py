@@ -4,10 +4,9 @@ from collections.abc import Callable
 from typing import Union
 
 import torch
-from jaxtyping import Float, Integer
+from jaxtyping import Real
 from torch import Tensor
 
-OutputDataType = Union[Float[Tensor, "..."], Integer[Tensor, "..."]]
 TorchLossType = torch.nn.modules.loss._Loss  # pylint: disable=protected-access
-CustomCriterionType = Callable[[Float[Tensor, "..."], Float[Tensor, "..."]], Float[Tensor, ""]]
+CustomCriterionType = Callable[[Real[Tensor, "..."], Real[Tensor, "..."]], Real[Tensor, ""]]
 CriterionType = Union[TorchLossType, CustomCriterionType]
