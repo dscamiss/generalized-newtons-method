@@ -1,5 +1,5 @@
-"""Examples module."""
+"""examples.fully_connected module."""
 
-from examples.fully_connected.fully_connected import FullyConnected
+from .fully_connected import FullyConnected
 
 __all__ = ["FullyConnected"]

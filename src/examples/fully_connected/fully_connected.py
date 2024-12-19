@@ -1,5 +1,8 @@
 """Fully-connected neural network."""
 
+# flake8: noqa=DCO010
+# pylint: disable=missing-function-docstring
+
 from jaxtyping import Float, jaxtyped
 from torch import Tensor, nn
 from typeguard import typechecked as typechecker
@@ -16,14 +19,14 @@ class FullyConnected(nn.Module):
         final_activation: Apply activation at final layer (default = True)
     """
 
-    def __init__(  # noqa: DCO010
+    def __init__(
         self,
         input_dim: int,
         hidden_layer_dims: list[int],
         output_dim: int,
         negative_slope: float = 0.0,
         final_activation: bool = True,
-    ):
+    ) -> None:
         super().__init__()
         self.input_dim = input_dim
         self.hidden_layer_dims = hidden_layer_dims
@@ -56,12 +59,4 @@ class FullyConnected(nn.Module):
 
     @jaxtyped(typechecker=typechecker)
     def forward(self, x: Float[Tensor, "b input_dim"]) -> Float[Tensor, "b output_dim"]:
-        """Compute network output.
-
-        Args:
-            x: Input tensor.
-
-        Returns:
-            Output tensor.
-        """
         return self.layers(x)
