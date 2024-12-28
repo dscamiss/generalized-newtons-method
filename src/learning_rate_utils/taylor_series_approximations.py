@@ -19,18 +19,24 @@ Note:
 
 import numpy as np
 import torch
+from functorch import make_functional
 from jaxtyping import Real, jaxtyped
 from numpy.typing import NDArray
 from torch import Tensor, linalg, nn
+from torch.autograd.functional import vhp
+from torch.func import functional_call, grad
 from typeguard import typechecked as typechecker
 
 from learning_rate_utils.types import CriterionType
 
+_TensorDict = dict[str, Real[Tensor, "..."]]
+_Scalar = Real[Tensor, ""]
+_ScalarTwoTuple = tuple[_Scalar, _Scalar]
+_ScalarThreeTuple = tuple[_Scalar, _Scalar, _Scalar]
+
 
 @jaxtyped(typechecker=typechecker)
-def norm_of_tensor_dict(
-    tensor_dict: dict[str, Real[Tensor, "..."]], p: float = 2.0
-) -> Real[Tensor, ""]:
+def norm_of_tensor_dict(tensor_dict: _TensorDict, p: float = 2.0) -> _Scalar:
     """Helper function to sum the norms of each tensor in a dictionary.
 
     Args:
@@ -47,7 +53,7 @@ def norm_of_tensor_dict(
 @jaxtyped(typechecker=typechecker)
 def first_order_approximation_coeffs(
     model: nn.Module, criterion: CriterionType, x: Real[Tensor, "..."], y: Real[Tensor, "..."]
-) -> tuple[Real[Tensor, ""], ...]:
+) -> tuple[_ScalarTwoTuple, _TensorDict]:
     """Compute coefficients of first-order Taylor series approximation.
 
     Args:
@@ -57,14 +63,18 @@ def first_order_approximation_coeffs(
         y: Output tensor (target).
 
     Returns:
-        Tuple containing scalar tensors with polynomial coefficients.
+        Tuple containing:
+            - Tuple of scalar tensors with approximation coefficients.
+            - Dictionary with model parameter gradients.  This can be ignored,
+              since it is only to avoid code duplication in the second-order
+              approximation code.
     """
-    # Extract parameters from `model` to pass to `torch.func.functional_call`
+    # Extract parameters from `model` to pass to `torch.func.functional_call()`
     params_dict = dict(model.named_parameters())
 
     # Wrapper function for parameter-dependent loss
     def parameterized_loss(params_dict):
-        y_hat = torch.func.functional_call(model, params_dict, (x,))
+        y_hat = functional_call(model, params_dict, (x,))
         return criterion(y_hat, y)
 
     with torch.no_grad():
@@ -73,12 +83,12 @@ def first_order_approximation_coeffs(
         coeff_1 = torch.as_tensor(0.0)
 
         # Compute parameter gradients
-        grad_params_dict = torch.func.grad(parameterized_loss)(params_dict)
+        grad_params_dict = grad(parameterized_loss)(params_dict)
 
         # Compute first-order coefficient
         coeff_1 = norm_of_tensor_dict(grad_params_dict)
 
-    return (coeff_0, -coeff_1)
+    return (coeff_0, -coeff_1), grad_params_dict
 
 
 @jaxtyped(typechecker=typechecker)
@@ -101,7 +111,7 @@ def first_order_approximation(
     Returns:
         Array with approximation values.
     """
-    coeffs = first_order_approximation_coeffs(model, criterion, x, y)
+    coeffs, _ = first_order_approximation_coeffs(model, criterion, x, y)
     coeffs = [coeff.detach().numpy() for coeff in coeffs][::-1]
     return np.poly1d(coeffs)(learning_rates)
 
@@ -109,7 +119,7 @@ def first_order_approximation(
 @jaxtyped(typechecker=typechecker)
 def second_order_approximation_coeffs(
     model: nn.Module, criterion: CriterionType, x: Real[Tensor, "..."], y: Real[Tensor, "..."]
-) -> tuple[Real[Tensor, ""], ...]:
+) -> _ScalarThreeTuple:
     """Compute coefficients of second-order Taylor series approximation.
 
     Args:
@@ -119,41 +129,34 @@ def second_order_approximation_coeffs(
         y: Output tensor (target).
 
     Returns:
-        Tuple containing scalar tensors with polynomial coefficients.
+        Tuple of scalar tensors with approximation coefficients.
     """
-    # Extract parameters from `model` to pass to `torch.func.functional_call`
-    params_dict = dict(model.named_parameters())
 
     # Wrapper function for parameter-dependent loss
-    def parameterized_loss(params_dict):
-        y_hat = torch.func.functional_call(model, params_dict, (x,))
+    # - This version is compatible with `make_functional()`, which is needed
+    #   for the call to `torch.autograd.functional.vhp()`.  PyTorch issues a
+    #   warning about using `make_functional()`, but there seems to be no
+    #   analogue of `torch.autograd.functional.vhp()` which can be used with
+    #   `torch.func.functional_call()`.
+    def parameterized_loss(*params):
+        model_func, _ = make_functional(model)
+        y_hat = model_func(params, x)
         return criterion(y_hat, y)
 
     with torch.no_grad():
-        # Polynomial coefficients
-        coeff_0 = parameterized_loss(params_dict)
-        coeff_1 = torch.as_tensor(0.0)
+        coeffs, grad_params_dict = first_order_approximation_coeffs(model, criterion, x, y)
         coeff_2 = torch.as_tensor(0.0)
 
-        # Compute parameter gradients and Hessian
-        grad_params_dict = torch.func.grad(parameterized_loss)(params_dict)
-        hess_params_dict = torch.func.hessian(parameterized_loss)(params_dict)
-
-        # Compute first-order coefficient
-        coeff_1 = norm_of_tensor_dict(grad_params_dict)
-
         # Compute second-order coefficient
-        # - TODO: Can we make the Hessian-vector product more efficient?  For
-        #         example using `torch.autograd.functional.hvp` or similar...
-        for grad_param_name_1, grad_param_1 in grad_params_dict.items():
-            grad_param_1 = grad_param_1.flatten()
-            for grad_param_name_2, grad_param_2 in grad_params_dict.items():
-                grad_param_2 = grad_param_2.flatten()
-                hess_block = hess_params_dict[grad_param_name_1][grad_param_name_2]
-                hess_block = hess_block.reshape(grad_param_1.numel(), grad_param_2.numel())
-                coeff_2 += torch.dot(grad_param_1, hess_block @ grad_param_2)
+        params = tuple(model.parameters())
+        grad_params = tuple(grad_params_dict.values())
+        _, prod = vhp(parameterized_loss, params, grad_params)
 
-    return (coeff_0, -coeff_1, coeff_2 / 2.0)
+        for i, grad_param in enumerate(grad_params):
+            coeff_2 += torch.dot(grad_param.flatten(), prod[i].flatten())
+
+    # Note: Minus was already applied to first-order coefficient
+    return (coeffs[0], coeffs[1], coeff_2 / 2.0)
 
 
 @jaxtyped(typechecker=typechecker)

@@ -94,7 +94,9 @@ def test_second_order_approximation_coeffs(
         https://dscamiss.github.io/blog/posts/learning_rates_one_layer/
     """
     # Get coefficients
-    coeffs = second_order_approximation_coeffs(model, criterion, x, y)
+    # - Expected PyTorch deprecation warning for `make_functional()`
+    with pytest.warns(UserWarning):
+        coeffs = second_order_approximation_coeffs(model, criterion, x, y)
 
     # Sanity check on coefficients
     assert len(coeffs) == 3, "Unexpected number of coefficients"
