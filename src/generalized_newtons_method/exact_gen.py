@@ -10,11 +10,11 @@ from torch import Tensor, nn
 from torch.optim.lr_scheduler import LRScheduler
 from typeguard import typechecked as typechecker
 
-from learning_rate_utils.taylor_series_approximations import second_order_approximation_coeffs
-from learning_rate_utils.types import CriterionType
+from generalized_newtons_method.types import CriterionType
+from generalized_newtons_method.utils import second_order_approximation_coeffs
 
 
-class SecondOrderLRScheduler(LRScheduler):
+class ExactGeNLR(LRScheduler):
     """Second-order learning rate scheduler.
 
     Args:

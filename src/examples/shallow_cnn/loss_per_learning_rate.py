@@ -13,7 +13,7 @@ from torchvision import datasets, transforms
 
 from examples.common import set_seed
 from examples.shallow_cnn import ShallowCNN
-from learning_rate_utils import loss_per_learning_rate
+from generalized_newtons_method.utils import loss_per_learning_rate
 
 
 def run_demo_untrained(train_loader: torch.utils.data.DataLoader) -> None:

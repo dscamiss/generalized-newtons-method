@@ -6,8 +6,8 @@ import torch
 from torch import nn
 
 from examples.common import set_seed
-from examples.fully_connected.fully_connected import FullyConnected
-from learning_rate_utils import loss_per_learning_rate
+from examples.fully_connected import FullyConnected
+from generalized_newtons_method.utils import loss_per_learning_rate
 
 
 def run_demo() -> None:

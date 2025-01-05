@@ -5,9 +5,9 @@ import numpy as np
 import torch
 from torch import nn
 
-import learning_rate_utils as lru
 from examples.common import set_seed
 from examples.fully_connected import FullyConnected
+from generalized_newtons_method.utils import loss_per_learning_rate, second_order_approximation
 
 
 def run_demo():
@@ -34,17 +34,13 @@ def run_demo():
 
     # Compute macro second-order approximation
     learning_rates_macro = np.linspace(0.0, 5.0, 100)
-    lplr_macro = lru.loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates_macro)
-    lplr_approx_macro = lru.second_order_approximation(model, criterion, x, y, learning_rates_macro)
+    lplr_macro = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates_macro)
+    lplr_approx_macro = second_order_approximation(model, criterion, x, y, learning_rates_macro)
 
     # Compute detailed second-order approximation near zero
     learning_rates_detail = np.linspace(0.0, 0.1, 100)
-    lplr_detail = lru.loss_per_learning_rate(
-        model, criterion, optimizer, x, y, learning_rates_detail
-    )
-    lplr_approx_detail = lru.second_order_approximation(
-        model, criterion, x, y, learning_rates_detail
-    )
+    lplr_detail = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates_detail)
+    lplr_approx_detail = second_order_approximation(model, criterion, x, y, learning_rates_detail)
 
     # Make plots of macro and detailed second-order approximations
     fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2)

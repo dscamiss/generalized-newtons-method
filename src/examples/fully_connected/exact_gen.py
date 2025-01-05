@@ -1,4 +1,4 @@
-"""Demo second-order learning rate scheduler."""
+"""Demo exact GeN learning rate scheduler."""
 
 # flake8: noqa=DCO010
 # pylint: disable=invalid-name
@@ -13,7 +13,7 @@ from torch.utils.data import DataLoader, Dataset
 
 from examples.common import set_seed
 from examples.fully_connected import FullyConnected
-from learning_rate_utils import SecondOrderLRScheduler
+from generalized_newtons_method import ExactGeNLR
 
 
 @dataclass
@@ -95,8 +95,8 @@ class Trainer:
         self.criterion = nn.MSELoss()
         self.optimizer = optim.SGD(self.model.parameters())
 
-        # Make second-order learning rate scheduler
-        self.scheduler = SecondOrderLRScheduler(
+        # Make exact GeN learning rate scheduler
+        self.scheduler = ExactGeNLR(
             self.optimizer, -1, self.model, self.criterion, self.config.lr_min, self.config.lr_max
         )
 

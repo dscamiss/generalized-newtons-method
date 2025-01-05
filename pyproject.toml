@@ -3,9 +3,9 @@ requires = ["setuptools >= 62.6"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "learning-rate-utils"
+name = "generalized-newtons-method"
 version = "0.0.1"
-description = "PyTorch utilities for studying the effects of different learning rates."
+description = "PyTorch implementation of the generalized Newton's method for learning rate selection"
 dynamic = ["dependencies"]
 requires-python = ">= 3.9"
 
