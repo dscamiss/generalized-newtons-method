@@ -10,8 +10,8 @@ from torch import Tensor, nn
 from torch.optim.lr_scheduler import LRScheduler
 from typeguard import typechecked as typechecker
 
-from generalized_newtons_method.types import CriterionType, OptimizerType
-from generalized_newtons_method.utils import second_order_approximation_coeffs
+from .types import CriterionType, OptimizerType
+from .utils import second_order_approximation_coeffs
 
 
 @jaxtyped(typechecker=typechecker)
