@@ -8,7 +8,7 @@ from typeguard import typechecked as typechecker
 
 from examples.common import set_seed
 from examples.fully_connected.fully_connected import FullyConnected
-from generalized_newtons_method.types import CustomCriterionType
+from generalized_newtons_method.types import CustomCriterionType, OptimizerType
 from generalized_newtons_method.utils import second_order_approximation_coeffs
 
 
@@ -55,6 +55,13 @@ def fixture_criterion(output_dim: int) -> CustomCriterionType:  # pylint: disabl
     return criterion
 
 
+@pytest.fixture(name="optimizer")
+@jaxtyped(typechecker=typechecker)
+def fixture_sgd_optimizer(model: nn.Module) -> OptimizerType:
+    """Vanilla SGD optimizer."""
+    return torch.optim.SGD(model.parameters())
+
+
 @pytest.fixture(name="batch_size")
 @jaxtyped(typechecker=typechecker)
 def fixture_batch_size() -> int:
@@ -80,6 +87,7 @@ def fixture_y(batch_size: int, output_dim: int) -> Float[Tensor, "b output_dim"]
 def test_second_order_approximation_coeffs(
     model: nn.Module,
     criterion: CustomCriterionType,
+    optimizer: OptimizerType,
     x: Float[Tensor, "b input_dim"],
     y: Float[Tensor, "b output_dim"],
 ) -> None:
@@ -91,12 +99,12 @@ def test_second_order_approximation_coeffs(
     compares it to the theoretical value of alpha_*.
 
     A derivation of the theoretical value of alpha_* is here:
-        https://dscamiss.github.io/blog/posts/learning_rates_one_layer/
+        https://dscamiss.github.io/blog/posts/generalized_newtons_method/
     """
     # Get coefficients
     # - Expected PyTorch deprecation warning for `make_functional()`
     with pytest.warns(UserWarning):
-        coeffs = second_order_approximation_coeffs(model, criterion, x, y)
+        coeffs = second_order_approximation_coeffs(model, criterion, optimizer, x, y)
 
     # Sanity check on coefficients
     assert len(coeffs) == 3, "Unexpected number of coefficients"

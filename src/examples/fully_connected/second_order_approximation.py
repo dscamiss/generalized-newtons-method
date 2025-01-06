@@ -35,12 +35,16 @@ def run_demo():
     # Compute macro second-order approximation
     learning_rates_macro = np.linspace(0.0, 5.0, 100)
     lplr_macro = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates_macro)
-    lplr_approx_macro = second_order_approximation(model, criterion, x, y, learning_rates_macro)
+    lplr_approx_macro = second_order_approximation(
+        model, criterion, optimizer, x, y, learning_rates_macro
+    )
 
     # Compute detailed second-order approximation near zero
     learning_rates_detail = np.linspace(0.0, 0.1, 100)
     lplr_detail = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates_detail)
-    lplr_approx_detail = second_order_approximation(model, criterion, x, y, learning_rates_detail)
+    lplr_approx_detail = second_order_approximation(
+        model, criterion, optimizer, x, y, learning_rates_detail
+    )
 
     # Make plots of macro and detailed second-order approximations
     fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2)

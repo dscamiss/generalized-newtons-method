@@ -1,4 +1,4 @@
-"""Second-order learning rate scheduler."""
+"""Exact version of generalized Newton's method."""
 
 # pylint: disable=arguments-differ
 
@@ -10,12 +10,33 @@ from torch import Tensor, nn
 from torch.optim.lr_scheduler import LRScheduler
 from typeguard import typechecked as typechecker
 
-from generalized_newtons_method.types import CriterionType
+from generalized_newtons_method.types import CriterionType, OptimizerType
 from generalized_newtons_method.utils import second_order_approximation_coeffs
 
 
+@jaxtyped(typechecker=typechecker)
+def is_vanilla_sgd(optimizer: OptimizerType) -> bool:
+    """Check if SGD optimizer is vanilla SGD.
+
+    Args:
+        optimizer: Optimizer.
+
+    Returns:
+        True iff `optimizer` is vanilla SGD (no momentum, dampening, etc.)
+    """
+    for param_group in optimizer.param_groups:
+        if (
+            param_group["momentum"]
+            or param_group["dampening"]
+            or param_group["weight_decay"]
+            or param_group["nesterov"]
+        ):
+            return False
+    return True
+
+
 class ExactGeNLR(LRScheduler):
-    """Second-order learning rate scheduler.
+    """Exact version of generalized Newton's method.
 
     Args:
         optimizer: Optimizer.
@@ -24,19 +45,29 @@ class ExactGeNLR(LRScheduler):
         criterion: Loss criterion function.
         lr_min: Minimum learning rate to use.
         lr_max: Maximum learning rate to use.
+
+    Raises:
+        ValueError: If `optimizer` is not supported.
     """
 
     _DEFAULT_LR = 1e-3
 
     def __init__(  # noqa: DCO010
         self,
-        optimizer: torch.optim.Optimizer,
+        optimizer: OptimizerType,
         last_epoch: int,
         model: nn.Module,
         criterion: CriterionType,
         lr_min: float,
         lr_max: float,
     ) -> None:
+        # Sanity checks on optimizer
+        if isinstance(optimizer, torch.optim.SGD):
+            if not is_vanilla_sgd(optimizer):
+                raise ValueError("Non-vanilla SGD is not supported")
+        else:
+            raise ValueError("Optimizer type is not supported")
+
         super().__init__(optimizer, last_epoch)
 
         self.model = model
@@ -87,7 +118,9 @@ class ExactGeNLR(LRScheduler):
             lr = self._DEFAULT_LR
         else:
             # Get coefficients of second-order approximation to LPLR
-            coeffs = second_order_approximation_coeffs(self.model, self.criterion, x, y)
+            coeffs = second_order_approximation_coeffs(
+                self.model, self.criterion, self.optimizer, x, y
+            )
             coeffs = [coeff.item() for coeff in coeffs]
 
             if coeffs[2] <= 0.0:

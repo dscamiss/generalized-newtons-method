@@ -21,6 +21,7 @@ ignore = [
     "D105",  # missing docstring in magic method
     "D107",  # missing docstring in __init__
     "F722",  # forward annotation syntax error
+    "W503",  # line break before binary operator
 ]
 
 [tool.isort]

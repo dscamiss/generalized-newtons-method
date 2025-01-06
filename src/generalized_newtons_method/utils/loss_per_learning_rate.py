@@ -9,14 +9,14 @@ from numpy.typing import NDArray
 from torch import Tensor, nn
 from typeguard import typechecked as typechecker
 
-from generalized_newtons_method.types import CriterionType
+from generalized_newtons_method.types import CriterionType, OptimizerType
 
 
 @jaxtyped(typechecker=typechecker)
 def loss_per_learning_rate(
     model: nn.Module,
     criterion: CriterionType,
-    optimizer: torch.optim.Optimizer,
+    optimizer: OptimizerType,
     x: Real[Tensor, "..."],
     y: Real[Tensor, "..."],
     learning_rates: NDArray,
@@ -31,9 +31,7 @@ def loss_per_learning_rate(
     Args:
         model: Network model.
         criterion: Loss criterion.
-        optimizer: Optimizer for each trainable parameter in `model`.  The
-            only constraint on `optimizer` is that each of its parameter groups
-            uses the `lr` key for the learning rate.
+        optimizer: Optimizer for each trainable parameter in `model`.
         x: Input tensor.
         y: Output tensor (target).
         learning_rates: List of learning rates (must be non-empty).
@@ -55,11 +53,6 @@ def loss_per_learning_rate(
     # Sanity check on `learning_rates` argument
     if len(learning_rates) == 0:
         raise ValueError("learning_rates is empty")
-
-    # Sanity check on `optimizer` argument
-    for param_group in optimizer.param_groups:
-        if "lr" not in param_group:
-            raise ValueError("optimizer is missing lr key")
 
     # Store one loss value for each learning rate
     losses = np.zeros(len(learning_rates))
