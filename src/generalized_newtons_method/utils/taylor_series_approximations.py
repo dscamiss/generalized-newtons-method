@@ -98,7 +98,7 @@ def first_order_approximation_coeffs(
             effective_grad_param = effective_grad_params_dict[param_name]
             coeff_1 += torch.sum(grad_param * effective_grad_param)  # Frobenius inner product
 
-    return (coeff_0, -coeff_1), grad_params_dict
+    return (coeff_0, -coeff_1), effective_grad_params_dict
 
 
 @jaxtyped(typechecker=typechecker)
@@ -161,18 +161,18 @@ def second_order_approximation_coeffs(
         return criterion(y_hat, y)
 
     with torch.no_grad():
-        coeffs, grad_params_dict = first_order_approximation_coeffs(
+        coeffs, effective_grad_params_dict = first_order_approximation_coeffs(
             model, criterion, optimizer, x, y
         )
         coeff_2 = torch.as_tensor(0.0)
 
         # Compute second-order coefficient
         params = tuple(model.parameters())
-        grad_params = tuple(grad_params_dict.values())
-        _, prod = vhp(parameterized_loss, params, grad_params)
+        effective_grad_params = tuple(effective_grad_params_dict.values())
+        _, prod = vhp(parameterized_loss, params, effective_grad_params)
 
-        for i, grad_param in enumerate(grad_params):
-            coeff_2 += torch.dot(grad_param.flatten(), prod[i].flatten())
+        for i, effective_grad_param in enumerate(effective_grad_params):
+            coeff_2 += torch.sum(effective_grad_param * prod[i])  # Frobenius inner product
 
     # Note: Minus was already applied to first-order coefficient
     return (coeffs[0], coeffs[1], coeff_2 / 2.0)
