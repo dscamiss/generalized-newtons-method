@@ -11,9 +11,9 @@ import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader, Dataset
 
-from examples.common import set_seed
-from examples.fully_connected import FullyConnected
 from generalized_newtons_method import ExactGeNLR
+from generalized_newtons_method.examples.common import set_seed
+from generalized_newtons_method.examples.fully_connected import FullyConnected
 
 
 @dataclass

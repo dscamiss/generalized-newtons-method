@@ -11,8 +11,8 @@ import torch
 from torch import nn
 from torchvision import datasets, transforms
 
-from examples.common import set_seed
-from examples.shallow_cnn import ShallowCNN
+from generalized_newtons_method.examples.common import set_seed
+from generalized_newtons_method.examples.shallow_cnn import ShallowCNN
 from generalized_newtons_method.utils import loss_per_learning_rate
 
 
