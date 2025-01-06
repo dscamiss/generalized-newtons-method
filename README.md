@@ -1,6 +1,6 @@
 ## generalized-newtons-method
 
-A PyTorch implementation of the generalized Newton's method proposed in [1].
+A PyTorch implementation of the "generalized Newton's method," proposed in [1].
 
 Theory and implementation notes can be found in [this blog post](https://dscamiss.github.io/blog/posts/generalized_newtons_method).
 
