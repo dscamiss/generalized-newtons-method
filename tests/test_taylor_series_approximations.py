@@ -6,8 +6,8 @@ from jaxtyping import Float, jaxtyped
 from torch import Tensor, nn
 from typeguard import typechecked as typechecker
 
-from src.generalized_newtons_method.examples.common import set_seed
-from src.generalized_newtons_method.examples.fully_connected.fully_connected import FullyConnected
+from src.examples.common import set_seed
+from src.examples.fully_connected import FullyConnected
 from src.generalized_newtons_method.types import CustomCriterionType, OptimizerType
 from src.generalized_newtons_method.utils import second_order_approximation_coeffs
 

@@ -9,7 +9,7 @@ from numpy.typing import NDArray
 from torch import Tensor, nn
 from typeguard import typechecked as typechecker
 
-from generalized_newtons_method.types import CriterionType, OptimizerType
+from ..types import CriterionType, OptimizerType
 
 
 @jaxtyped(typechecker=typechecker)

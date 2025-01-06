@@ -13,7 +13,7 @@ from torch.autograd.functional import vhp
 from torch.func import functional_call, grad
 from typeguard import typechecked as typechecker
 
-from generalized_newtons_method.types import CriterionType, OptimizerType
+from ..types import CriterionType, OptimizerType
 
 _TensorDict = dict[str, Real[Tensor, "..."]]
 _Scalar = Real[Tensor, ""]

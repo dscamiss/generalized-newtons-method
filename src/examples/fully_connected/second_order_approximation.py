@@ -5,9 +5,9 @@ import numpy as np
 import torch
 from torch import nn
 
-from generalized_newtons_method.examples.common import set_seed
-from generalized_newtons_method.examples.fully_connected import FullyConnected
-from generalized_newtons_method.utils import loss_per_learning_rate, second_order_approximation
+from src.examples.common import set_seed
+from src.examples.fully_connected import FullyConnected
+from src.generalized_newtons_method.utils import loss_per_learning_rate, second_order_approximation
 
 
 def run_demo():
