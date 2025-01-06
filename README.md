@@ -2,6 +2,8 @@
 
 A PyTorch implementation of the generalized Newton's method proposed in [1].
 
+Theory and implementation notes can be found in [this blog post](https://dscamiss.github.io/blog/posts/generalized_newtons_method).
+
 Currently only the exact version of the method, which materializes Hessian-vector products, is implemented for SGD.
 A future version will implement the exact and approximate versions of the method for all standard PyTorch optimizers.
 
