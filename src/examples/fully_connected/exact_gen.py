@@ -171,13 +171,13 @@ class Trainer:
         ax1.plot(train_losses, label="loss", color="blue")
         ax1.set_xlabel("epoch")
         ax1.set_ylabel("loss")
-        ax1.set_title("average losses for each epoch")
+        ax1.set_title("Average losses for each epoch")
 
         # Plot learning rates after each epoch
         ax2.plot(learning_rates, label="learning rate", color="red")
         ax2.set_xlabel("epochs")
         ax2.set_ylabel("learning rate")
-        ax2.set_title("learning rates after each epoch")
+        ax2.set_title("Learning rates after each epoch")
 
         plt.tight_layout()
         plt.show()
@@ -192,4 +192,5 @@ def run_demo() -> None:
 
 if __name__ == "__main__":
     set_seed(11)
+    plt.rcParams["text.usetex"] = True
     run_demo()
