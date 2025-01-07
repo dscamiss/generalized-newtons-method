@@ -1,6 +1,6 @@
 ## generalized-newtons-method
 
-![example workflow](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)
+[![Build](https://github.com/dscamiss/generalized-newtons-method/actions/workflows/python-package.yml/badge.svg)]
 
 A PyTorch implementation of the "generalized Newton's method" for learning rate selection, proposed in [1].
 
