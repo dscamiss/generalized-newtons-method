@@ -1,4 +1,4 @@
-## generalized-newtons-method
+## generalized-newtons-method (WIP)
 
 ![Build](https://github.com/dscamiss/generalized-newtons-method/actions/workflows/python-package.yml/badge.svg)
 
