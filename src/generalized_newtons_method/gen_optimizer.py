@@ -5,7 +5,7 @@
 # ruff: noqa: F821  <-- ruff complains about forward reference
 
 from collections.abc import Callable
-from typing import Any, Optional, Type
+from typing import Optional, Type
 
 from jaxtyping import Real, jaxtyped
 from torch import Tensor
