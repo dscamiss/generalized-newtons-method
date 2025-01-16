@@ -42,33 +42,37 @@ def run_demo():
 
     # Compute macro second-order approximation
     learning_rates_macro = np.linspace(0.0, 5.0, 100)
-    lplr_macro = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates_macro)
-    lplr_approx_macro = second_order_approximation(
+    losses_macro = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates_macro)
+    losses_approx_macro = second_order_approximation(
         model, criterion, optimizer, x, y, learning_rates_macro, loss
     )
 
     # Compute detailed second-order approximation near zero
     learning_rates_detail = np.linspace(0.0, 0.1, 100)
-    lplr_detail = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates_detail)
-    lplr_approx_detail = second_order_approximation(
+    losses_detail = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates_detail)
+    losses_approx_detail = second_order_approximation(
         model, criterion, optimizer, x, y, learning_rates_detail, loss
     )
 
     # Make plots of macro and detailed second-order approximations
     fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2)
 
-    ax1.plot(learning_rates_macro, lplr_macro, label="loss per learning rate")
+    ax1.plot(learning_rates_macro, losses_macro, label="loss per learning rate")
     ax1.plot(
-        learning_rates_macro, lplr_approx_macro, "--", color="lime", label="second-order approx."
+        learning_rates_macro, losses_approx_macro, "--", color="lime", label="second-order approx."
     )
     ax1.set_xlabel("learning rate")
     ax1.set_ylabel("loss")
     ax1.set_title("Macro")
     ax1.legend()
 
-    ax2.plot(learning_rates_detail, lplr_detail, label="loss per learning rate")
+    ax2.plot(learning_rates_detail, losses_detail, label="loss per learning rate")
     ax2.plot(
-        learning_rates_detail, lplr_approx_detail, "--", color="lime", label="second-order approx."
+        learning_rates_detail,
+        losses_approx_detail,
+        "--",
+        color="lime",
+        label="second-order approx.",
     )
     ax2.set_xlabel("learning rate")
     ax2.set_ylabel("loss")
