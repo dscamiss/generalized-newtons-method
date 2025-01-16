@@ -64,13 +64,13 @@ def test_loss_per_learning_rate_output(
     criterion(model(x), y).backward()
 
     # Check outputs
-    lplr = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates)
+    losses = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates)
     with torch.no_grad():
-        for learning_rate, loss in zip(learning_rates, lplr):
+        for learning_rate, loss in zip(learning_rates, losses):
             for group in optimizer.param_groups:
                 for param in group["params"]:
-                    param -= learning_rate * param.grad
-            assert criterion(model(x), y).item() == loss, "Unexpected loss value"
+                    param.add_(param.grad, alpha=-learning_rate)
+            assert criterion(model(x), y) == loss, "Unexpected loss value"
             model.load_state_dict(model_state_dict)
 
 
@@ -89,8 +89,8 @@ def test_loss_per_learning_rate_output_size(
     criterion(model(x), y).backward()
 
     # Check output size
-    lplr = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates)
-    assert len(lplr) == len(learning_rates), "Mismatch between input and output size"
+    losses = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates)
+    assert len(losses) == len(learning_rates), "Mismatch between input and output size"
 
 
 @jaxtyped(typechecker=typechecker)
