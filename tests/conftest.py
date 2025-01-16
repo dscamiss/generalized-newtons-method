@@ -37,7 +37,7 @@ def fixture_output_dim() -> int:
 @jaxtyped(typechecker=typechecker)
 def fixture_model(input_dim: int, output_dim: int) -> nn.Module:
     """Fully-connected network with one layer and ReLU activation."""
-    return FullyConnected(input_dim, [], output_dim)
+    return FullyConnected(input_dim, [], output_dim).eval()
 
 
 @pytest.fixture(name="criterion")

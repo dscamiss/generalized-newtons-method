@@ -18,14 +18,44 @@ def fixture_sgd_optimizer(model: nn.Module) -> OptimizerType:
 
 
 @jaxtyped(typechecker=typechecker)
-def test_second_order_approximation_coeffs(
+def test_second_order_approximation_coeffs_0(
     model: nn.Module,
     criterion: CustomCriterionType,
     optimizer: OptimizerType,
     x: Float[Tensor, "b input_dim"],
     y: Float[Tensor, "b output_dim"],
 ) -> None:
-    """Test second-order approximation.
+    """Test zero-th second-order approximation coefficient."""
+    # Compute gradients
+    optimizer.zero_grad()
+    loss = criterion(model(x), y)
+    loss.backward()
+
+    # Compute coefficients with loss not specified
+    # - Expected PyTorch deprecation warning for `make_functional()`
+    with pytest.warns(UserWarning):
+        coeffs = second_order_approximation_coeffs(model, criterion, optimizer, x, y)
+    assert len(coeffs) == 3, "Unexpected number of coefficients"
+    assert coeffs[0] == loss, "Mismatch between loss values"
+
+    # Compute coefficients with loss specified
+    # - Expected PyTorch deprecation warning for `make_functional()`
+    with pytest.warns(UserWarning):
+        coeffs = second_order_approximation_coeffs(model, criterion, optimizer, x, y, loss)
+    assert len(coeffs) == 3, "Unexpected number of coefficients"
+    assert coeffs[0] == loss, "Mismatch between loss values"
+
+
+@jaxtyped(typechecker=typechecker)
+def test_second_order_approximation_coeffs_versus_theoretical(
+    model: nn.Module,
+    criterion: CustomCriterionType,
+    optimizer: OptimizerType,
+    x: Float[Tensor, "b input_dim"],
+    y: Float[Tensor, "b output_dim"],
+) -> None:
+    """
+    Test second-order approximation.
 
     Define "alpha_*" to be the learning rate which minimizes the second-order
     Taylor series approximation of the loss-per-learning-rate function.  This
@@ -35,13 +65,15 @@ def test_second_order_approximation_coeffs(
     A derivation of the theoretical value of alpha_* is here:
         https://dscamiss.github.io/blog/posts/generalized_newtons_method/
     """
+    # Compute gradients
+    optimizer.zero_grad()
+    loss = criterion(model(x), y)
+    loss.backward()
+
     # Get coefficients
     # - Expected PyTorch deprecation warning for `make_functional()`
     with pytest.warns(UserWarning):
-        coeffs = second_order_approximation_coeffs(model, criterion, optimizer, x, y)
-
-    # Sanity check on coefficients
-    assert len(coeffs) == 3, "Unexpected number of coefficients"
+        coeffs = second_order_approximation_coeffs(model, criterion, optimizer, x, y, loss)
 
     # Make alpha_* numerator and denominator terms
     num, den = -coeffs[1], 2.0 * coeffs[2]

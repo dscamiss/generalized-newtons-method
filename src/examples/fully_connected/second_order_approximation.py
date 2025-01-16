@@ -29,21 +29,29 @@ def run_demo():
     # Make MSE criterion
     criterion = nn.MSELoss()
 
-    # Make standard gradient descent optimizer
+    # Make vanilla SGD optimizer
     optimizer = torch.optim.SGD(model.parameters())
+
+    # Ensure model is in evaluation mode (disables dropout etc.)
+    model.eval()
+
+    # Compute gradients
+    optimizer.zero_grad()
+    loss = criterion(model(x), y)
+    loss.backward()
 
     # Compute macro second-order approximation
     learning_rates_macro = np.linspace(0.0, 5.0, 100)
     lplr_macro = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates_macro)
     lplr_approx_macro = second_order_approximation(
-        model, criterion, optimizer, x, y, learning_rates_macro
+        model, criterion, optimizer, x, y, learning_rates_macro, loss
     )
 
     # Compute detailed second-order approximation near zero
     learning_rates_detail = np.linspace(0.0, 0.1, 100)
     lplr_detail = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates_detail)
     lplr_approx_detail = second_order_approximation(
-        model, criterion, optimizer, x, y, learning_rates_detail
+        model, criterion, optimizer, x, y, learning_rates_detail, loss
     )
 
     # Make plots of macro and detailed second-order approximations

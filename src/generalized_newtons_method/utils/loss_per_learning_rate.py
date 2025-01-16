@@ -20,36 +20,37 @@ def loss_per_learning_rate(
     x: Real[Tensor, "..."],
     y: Real[Tensor, "..."],
     learning_rates: NDArray,
-    init_gradients: bool = True,
 ) -> NDArray:
-    """Compute loss-per-learning-rate.
+    """Compute loss-per-learning-rate function.
 
-    This function computes the loss values which would result from using
-    each learning rate in specified set of learning rates, at a single step
-    of gradient descent.
+    Given learning rates lr_i, this function computes the loss values after
+    running a single optimizer step with learning rate lr_i applied to ALL
+    parameter groups.
+
+    This function does not produce meaningful output for more complicated
+    optimizer configs, where the learning rate varies by parameter group.
 
     Args:
-        model: Network model.
+        model: Network model in evaluation mode.
         criterion: Loss criterion.
-        optimizer: Optimizer for each trainable parameter in `model`.
+        optimizer: Optimizer for model parameters.
         x: Input tensor.
         y: Output tensor (target).
         learning_rates: List of learning rates (must be non-empty).
-        init_gradients: Run initial gradient computation (default = `True`).
 
     Returns:
-        The loss values for each learning rate in `learning_rates`.
+        Array of loss values for each learning rate in `learning_rates`.
 
     Raises:
         ValueError: If any arguments are invalid.
 
     Note:
-        No modification is made to the state of `model` unless `init_gradients`
-        is `True`.  In this case, we set the parameter gradients of `model`.
-
-    Note:
-        No modification is made to the state of `optimizer`.
+        This function should not mutate `model` or `optimizer`.
     """
+    # Sanity check on `model` argument
+    if model.training:
+        raise ValueError("Model is not in evaluation mode")
+
     # Sanity check on `learning_rates` argument
     if len(learning_rates) == 0:
         raise ValueError("learning_rates is empty")
@@ -57,19 +58,9 @@ def loss_per_learning_rate(
     # Store one loss value for each learning rate
     losses = np.zeros(len(learning_rates))
 
-    # Compute initial parameter gradients, if required
-    if init_gradients:
-        optimizer.zero_grad()  # Avoid gradient accumulation
-        y_hat = model(x)
-        loss = criterion(y_hat, y)
-        loss.backward()
-
     # Save model and optimizer states
     model_state_dict = copy.deepcopy(model.state_dict())
     optimizer_state_dict = copy.deepcopy(optimizer.state_dict())
-
-    # Ensure model is in evaluation mode (disables dropout etc.)
-    model.eval()
 
     for i, learning_rate in enumerate(learning_rates):
         # Update learning rate in each parameter group
@@ -81,14 +72,9 @@ def loss_per_learning_rate(
 
         # Compute loss with updated parameters
         with torch.no_grad():
-            new_y_hat = model(x)
-            new_loss = criterion(new_y_hat, y)
-            losses[i] = new_loss.item()
+            losses[i] = criterion(model(x), y).item()
 
         # Restore model and optimizer states
-        # - In particular, this restores parameter gradients computed earlier
-        #   and also restores the value of `model.training` which was possibly
-        #   modified by `model.eval()`
         model.load_state_dict(model_state_dict)
         optimizer.load_state_dict(optimizer_state_dict)
 

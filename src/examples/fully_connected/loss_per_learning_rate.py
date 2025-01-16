@@ -29,13 +29,22 @@ def run_demo() -> None:
     # Make MSE criterion
     criterion = nn.MSELoss()
 
-    # Make standard gradient descent optimizer
+    # Make vanilla SGD optimizer
     optimizer = torch.optim.SGD(model.parameters())
+
+    # Ensure model is in evaluation mode (disables dropout etc.)
+    model.eval()
 
     # Model parameters are fixed; make new dummy data for each plot
     for i in range(num_plots):
         x = torch.randn(batch_size, input_dim)
         y = torch.randn(batch_size, output_dim) ** 2.0
+
+        # Compute gradients
+        optimizer.zero_grad()
+        criterion(model(x), y).backward()
+
+        # Compute losses
         losses[:, i] = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates)
 
     # Plot losses

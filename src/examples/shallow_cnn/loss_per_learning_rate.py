@@ -32,13 +32,22 @@ def run_demo_untrained(train_loader: torch.utils.data.DataLoader) -> None:
     # Make negative log-likelihood criterion
     criterion = nn.NLLLoss()
 
-    # Make standard gradient descent optimizer
+    # Make vanilla SGD optimizer
     optimizer = torch.optim.SGD(model.parameters())
+
+    # Ensure model is in evaluation mode (disables dropout etc.)
+    model.eval()
 
     # Model parameters are fixed; load new data for each plot
     iter_train_loader = iter(train_loader)
     for i in range(num_plots):
         x, y = next(iter_train_loader)
+
+        # Compute gradients
+        optimizer.zero_grad()
+        criterion(model(x), y).backward()
+
+        # Compute losses
         losses[:, i] = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates)
 
     # Plot losses
@@ -75,13 +84,22 @@ def run_demo_trained(
     # Make negative log-likelihood criterion
     criterion = nn.NLLLoss()
 
-    # Make standard gradient descent optimizer
+    # Make vanilla SGD optimizer
     optimizer = torch.optim.SGD(model.parameters())
+
+    # Ensure model is in evaluation mode (disables dropout etc.)
+    model.eval()
 
     # Model parameters are fixed; load new data for each plot
     iter_train_loader = iter(train_loader)
     for i in range(num_plots):
         x, y = next(iter_train_loader)
+
+        # Compute gradients
+        optimizer.zero_grad()
+        criterion(model(x), y).backward()
+
+        # Compute loss values
         losses[:, i] = loss_per_learning_rate(model, criterion, optimizer, x, y, learning_rates)
 
     # Plot losses
