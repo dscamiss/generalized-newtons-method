@@ -79,8 +79,8 @@ def test_second_order_approximation_coeffs_versus_theoretical(
     num, den = -coeffs[1], 2.0 * coeffs[2]
 
     # Sanity check on numerator and denominator terms
-    assert num != 0.0, "Unexpected numerator term num = {num}"
-    assert den > 0.0, "Unexpected denominator term den = {den}"
+    assert num != 0.0, "Unexpected numerator term (0)"
+    assert den > 0.0, f"Unexpected denominator term ({den})"
 
     # Compute actual alpha_* value
     alpha_star = num / den
