@@ -192,5 +192,6 @@ def run_demo() -> None:
 
 if __name__ == "__main__":
     set_seed(11)
+    torch.set_default_dtype(torch.float64)
     plt.rcParams["text.usetex"] = True
     run_demo()
