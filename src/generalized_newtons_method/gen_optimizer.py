@@ -1,12 +1,12 @@
-"""Wrapped optimizer that tracks parameter updates for GeN."""
+"""Wrapped optimizer for GeN."""
 
 # flake8: noqa=DCO010
-# pylint: disable=C0103
-# ruff: noqa: F821  <-- ruff complains about forward reference
+# ruff: noqa: F821 [forward reference]
 
 from collections.abc import Callable
 from typing import Optional, Type
 
+import torch
 from jaxtyping import Real, jaxtyped
 from torch import Tensor
 from typeguard import typechecked as typechecker
@@ -16,19 +16,76 @@ from src.generalized_newtons_method.types import OptimizerType
 _StepClosureType = Optional[Callable[[], float]]
 
 
+class GeNOptimizer:  # pylint: disable=too-few-public-methods
+    """Empty class for wrapper class identification."""
+
+
 @jaxtyped(typechecker=typechecker)
-def gen_optimizer(
-    base_optimizer_class: Type[OptimizerType], *args, **kwargs
-) -> "_OptimizerWithParamUpdateTracking":
+def make_gen_optimizer(base_optimizer_class: Type[OptimizerType], *args, **kwargs) -> GeNOptimizer:
     """
-    Wrapper learning rate scheduler with parameter update tracking.
+    Make wrapped optimizer for GeN.
+
+    The wrapper adds parameter update tracking.
+
+    Note:
+      - In the function `compute_param_updates()`, we compute the current
+        parameter updates by calling the base optimizer's `step()`.  The latter
+        function computes the current parameter updates AND adjusts parameters.
+        The adjustment then needs to be undone, to allow GeN to compute the
+        current learning rate as a function of the parameter updates, then
+        adjust parameters.  It looks like this inefficiency cannot be improved
+        without tweaking the base optimizers.
     """
 
-    class _OptimizerWithParamUpdateTracking(base_optimizer_class):
+    class WrappedOptimizer(GeNOptimizer, base_optimizer_class):
+        """Wrapper class for base optimizer class."""
+
         def __init__(self, *args, **kwargs) -> None:
             super().__init__(*args, **kwargs)
             self._param_cache = {}
+            self._param_update_cache = {}
             self._param_updates_available = False
+
+        def _refresh_param_cache(self) -> None:
+            """Refresh parameter cache with current parameter values."""
+            for group in self.param_groups:
+                for param in group["params"]:
+                    self._param_cache[param] = param.clone().detach()
+
+        def _refresh_param_update_cache(self) -> None:
+            """
+            Run a single optimizer step.
+
+            """
+            # Refresh parameter cache
+            self._refresh_param_cache()
+
+            # Call the base optimizer's `step()`; this adjusts parameters
+            super().step()
+
+            # Derive parameter updates
+            for group in self.param_groups:
+                for param in group["params"]:
+                    prev_param = self._param_cache[param]
+                    self._param_update_cache[param] = param.clone().detach() - prev_param
+                    self._param_update_cache[param] /= -1.0 * group["lr"]
+
+            # Restore parameters
+            self._restore_params()
+
+            # Flag current parameter updates are available
+            self._param_updates_available = True
+
+        def _restore_params(self) -> None:
+            """Restore parameters from parameter cache."""
+            with torch.no_grad():
+                for group in self.param_groups:
+                    for param in group["params"]:
+                        param.copy_(self._param_cache[param])
+
+        def compute_param_updates(self) -> None:
+            """Compute parameter updates."""
+            self._refresh_param_update_cache()
 
         @jaxtyped(typechecker=typechecker)
         def get_param_update(self, param: Real[Tensor, "..."]) -> Real[Tensor, "..."]:
@@ -39,54 +96,50 @@ def gen_optimizer(
                 - param: Parameter whose update will be returned.
 
             Returns:
-                The current parameter update for `param`.
+                Current parameter update for `param`.
 
             Raises:
-                ValueError: If parameter updates are not available, i.e., if
-                    `step()` has not been invoked before `get_param_update()`.
+                ValueError: If current parameter updates are not available.
             """
             if not self._param_updates_available:
-                raise ValueError("Updates are not available.")
+                err_str = "Parameter updates are not available (did you run compute_param_updates()?)."
+                raise ValueError(err_str)
 
-            return self._param_cache[param]
+            return self._param_update_cache[param]
 
-        def _refresh_param_cache(self) -> None:
-            """
-            Refresh parameter cache with current parameter values.
-            """
-            for group in self.param_groups:
-                for param in group["params"]:
-                    self._param_cache[param] = param.clone().detach()
-
-        def reset_param_cache(self) -> None:
-            """
-            Reset parameter cache to uninitialized state; used in test code.
-            """
+        def reset(self) -> None:
+            """Reset to uninitialized state."""
             self._param_cache = {}
+            self._param_update_cache = {}
             self._param_updates_available = False
 
-        @jaxtyped(typechecker=typechecker)
-        def step(self, closure: _StepClosureType = None) -> Optional[float]:
+        def step(self, closure: _StepClosureType = None, training_step: bool = True) -> None:
             """
-            Run a single optimizer step.
+            Run optimizer for a single step.
+
+            After invoking this function, we are in the following state:
+                - Current parameter updates are not available.
+                - Parameters have been updated by the base optimizer.
 
             Args:
-                - closure: Optional closure passed to `super().step()`, see
-                    PyTorch docs for `torch.optim.Optimizer.step()` for more
-                    (default = `None`).
+                - closure: Optional closure argument (default = `None`).
+                  Details in PyTorch docs for `torch.optim.Optimizer.step()`.
+                - training_step: Flag indicating that this is a training step
+                  (default = False).  Not used outside of examples, where it
+                  is used to avoid code duplication.
+
+            Raises:
+                NotImplementedError: If `closure` is not `None`.
             """
-            self._refresh_param_cache()
+            # Sanity check on parameters
+            if closure is not None:
+                raise NotImplementedError("Closure argument is not implemented")
 
-            # Call base optimizer `step()`.
-            super().step(closure)
+            # Run base optimizer step
+            super().step()
 
-            # Derive parameter updates
-            for group in self.param_groups:
-                for param in group["params"]:
-                    prev_param = self._param_cache[param]
-                    self._param_cache[param] = param.clone().detach() - prev_param
-                    self._param_cache[param] /= -1.0 * group["lr"]
+            # Flag current parameter updates are not available
+            if training_step:
+                self._param_updates_available = False
 
-            self._param_updates_available = True
-
-    return _OptimizerWithParamUpdateTracking(*args, **kwargs)
+    return WrappedOptimizer(*args, **kwargs)

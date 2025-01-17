@@ -10,6 +10,7 @@ from torchvision import datasets, transforms
 
 from src.examples.common import set_seed
 from src.examples.shallow_cnn import ShallowCNN
+from src.generalized_newtons_method import make_gen_optimizer
 from src.generalized_newtons_method.utils import loss_per_learning_rate, second_order_approximation
 
 
@@ -33,7 +34,7 @@ def run_demo():
     criterion = nn.NLLLoss()
 
     # Make vanilla SGD optimizer
-    optimizer = torch.optim.SGD(model.parameters())
+    optimizer = make_gen_optimizer(torch.optim.SGD, model.parameters())
 
     # Ensure model is in evaluation mode (disables dropout etc.)
     model.eval()
@@ -42,6 +43,9 @@ def run_demo():
     optimizer.zero_grad()
     loss = criterion(model(x), y)
     loss.backward()
+
+    # Compute parameter updates
+    optimizer.compute_param_updates()
 
     # Compute macro second-order approximation
     learning_rates_macro = np.linspace(0.0, 5.0, 100)

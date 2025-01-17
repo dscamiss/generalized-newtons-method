@@ -9,6 +9,7 @@ from numpy.typing import NDArray
 from torch import Tensor, nn
 from typeguard import typechecked as typechecker
 
+from ..gen_optimizer import GeNOptimizer
 from ..types import CriterionType, OptimizerType
 
 
@@ -21,7 +22,8 @@ def loss_per_learning_rate(
     y: Real[Tensor, "..."],
     learning_rates: NDArray,
 ) -> NDArray:
-    """Compute loss-per-learning-rate function.
+    """
+    Compute loss-per-learning-rate function.
 
     Given learning rates lr_i, this function computes the loss values after
     running a single optimizer step with learning rate lr_i applied to ALL
@@ -31,7 +33,7 @@ def loss_per_learning_rate(
     optimizer configs, where the learning rate varies by parameter group.
 
     Args:
-        model: Network model in evaluation mode.
+        model: Network model (in evaluation mode).
         criterion: Loss criterion.
         optimizer: Optimizer for model parameters.
         x: Input tensor.
@@ -68,7 +70,10 @@ def loss_per_learning_rate(
             param_group["lr"] = learning_rate
 
         # Update parameters
-        optimizer.step()
+        if isinstance(optimizer, GeNOptimizer):
+            optimizer.step(training_step=False)
+        else:
+            optimizer.step()
 
         # Compute loss with updated parameters
         with torch.no_grad():

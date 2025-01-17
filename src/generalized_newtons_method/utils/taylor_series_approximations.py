@@ -14,7 +14,8 @@ from torch import Tensor, nn
 from torch.autograd.functional import vhp
 from typeguard import typechecked as typechecker
 
-from ..types import CriterionType, OptimizerType
+from ..gen_optimizer import GeNOptimizer
+from ..types import CriterionType
 
 _TensorDict = dict[str, Real[Tensor, "..."]]
 _Scalar = Real[Tensor, ""]
@@ -26,7 +27,7 @@ _ScalarThreeTuple = tuple[_Scalar, _Scalar, _Scalar]
 def second_order_approximation_coeffs(
     model: nn.Module,
     criterion: CriterionType,
-    optimizer: OptimizerType,
+    optimizer: GeNOptimizer,
     x: Real[Tensor, "..."],
     y: Real[Tensor, "..."],
     loss: Optional[_Scalar] = None,
@@ -47,7 +48,6 @@ def second_order_approximation_coeffs(
     Note:
         This function expects gradients to be available.
     """
-    # FIXME: Only works with SGD for now
 
     # Wrapper function for parameter-dependent loss
     # - This version is compatible with `make_functional()`, which is needed
@@ -72,9 +72,7 @@ def second_order_approximation_coeffs(
             return criterion(y_hat, y)
 
         params = tuple(model.parameters())
-        param_updates = tuple(
-            param.grad for param in model.parameters()
-        )  # FIXME: Vanilla SGD-specific
+        param_updates = tuple(optimizer.get_param_update(param) for param in params)
         _, prod = vhp(parameterized_loss, params, param_updates)
 
         for i, param_update in enumerate(param_updates):
@@ -87,7 +85,7 @@ def second_order_approximation_coeffs(
 def second_order_approximation(
     model: nn.Module,
     criterion: CriterionType,
-    optimizer: OptimizerType,
+    optimizer: GeNOptimizer,
     x: Real[Tensor, "..."],
     y: Real[Tensor, "..."],
     learning_rates: NDArray,

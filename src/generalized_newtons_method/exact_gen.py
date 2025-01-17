@@ -4,35 +4,14 @@
 
 from typing import Optional
 
-import torch
 from jaxtyping import Real, jaxtyped
 from torch import Tensor, nn
 from torch.optim.lr_scheduler import LRScheduler
 from typeguard import typechecked as typechecker
 
-from src.generalized_newtons_method.types import CriterionType, OptimizerType
+from src.generalized_newtons_method.gen_optimizer import GeNOptimizer
+from src.generalized_newtons_method.types import CriterionType
 from src.generalized_newtons_method.utils import second_order_approximation_coeffs
-
-
-@jaxtyped(typechecker=typechecker)
-def is_vanilla_sgd(optimizer: OptimizerType) -> bool:
-    """Check if SGD optimizer is vanilla SGD.
-
-    Args:
-        optimizer: Optimizer.
-
-    Returns:
-        True iff `optimizer` is vanilla SGD (no momentum, dampening, etc.)
-    """
-    for param_group in optimizer.param_groups:
-        if (
-            param_group["momentum"]
-            or param_group["dampening"]
-            or param_group["weight_decay"]
-            or param_group["nesterov"]
-        ):
-            return False
-    return True
 
 
 class ExactGeNLR(LRScheduler):
@@ -50,24 +29,18 @@ class ExactGeNLR(LRScheduler):
         ValueError: If `optimizer` is not supported.
     """
 
-    _DEFAULT_LR = 1e-3
+    _FALLBACK_LR = 1e-3
 
+    @jaxtyped(typechecker=typechecker)
     def __init__(  # noqa: DCO010
         self,
-        optimizer: OptimizerType,
+        optimizer: GeNOptimizer,
         last_epoch: int,
         model: nn.Module,
         criterion: CriterionType,
         lr_min: float,
         lr_max: float,
     ) -> None:
-        # Sanity checks on optimizer
-        if isinstance(optimizer, torch.optim.SGD):
-            if not is_vanilla_sgd(optimizer):
-                raise ValueError("Non-vanilla SGD is not supported")
-        else:
-            raise ValueError("Optimizer type is not supported")
-
         super().__init__(optimizer, last_epoch)
 
         self.model = model
@@ -113,11 +86,14 @@ class ExactGeNLR(LRScheduler):
         Returns:
             List of learning rates for each parameter group.
         """
-        # Handle initial step (in this case, `x` and `y` are not available)
+        # Handle initial step (in this case, `x` and `y` are `None`)
         if x is None and y is None:
-            lr = self._DEFAULT_LR
+            lr = self._FALLBACK_LR
         else:
-            # Get coefficients of second-order approximation to LPLR
+            # Compute parameter updates
+            self.optimizer.compute_param_updates()
+
+            # Compute coefficients of second-order approximation to loss-per-learning-rate function
             coeffs = second_order_approximation_coeffs(
                 self.model, self.criterion, self.optimizer, x, y
             )
@@ -125,7 +101,7 @@ class ExactGeNLR(LRScheduler):
 
             if coeffs[2] <= 0.0:
                 # Approximation is concave --> use default learning rate
-                lr = self._DEFAULT_LR
+                lr = self._FALLBACK_LR
             else:
                 # Approximation is convex --> use approximate minimizer
                 alpha_star = -coeffs[1] / (2.0 * coeffs[2])

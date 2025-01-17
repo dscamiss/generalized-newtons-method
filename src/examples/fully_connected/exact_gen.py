@@ -8,12 +8,12 @@ from typing import Optional
 
 import matplotlib.pyplot as plt
 import torch
-from torch import nn, optim
+from torch import nn
 from torch.utils.data import DataLoader, Dataset
 
 from src.examples.common import set_seed
 from src.examples.fully_connected import FullyConnected
-from src.generalized_newtons_method import ExactGeNLR
+from src.generalized_newtons_method import ExactGeNLR, make_gen_optimizer
 
 
 @dataclass
@@ -93,7 +93,7 @@ class Trainer:
         # - Note: Model does not apply ReLU activation at final layer
         self.model = FullyConnected(self.config.input_dim, [64, 32], 1, 0.0, False).to(device)
         self.criterion = nn.MSELoss()
-        self.optimizer = optim.SGD(self.model.parameters())
+        self.optimizer = make_gen_optimizer(torch.optim.SGD, self.model.parameters())
 
         # Make exact GeN learning rate scheduler
         self.scheduler = ExactGeNLR(
