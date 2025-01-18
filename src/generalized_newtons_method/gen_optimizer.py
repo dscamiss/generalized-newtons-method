@@ -1,7 +1,6 @@
 """Wrapped optimizer for GeN."""
 
 # flake8: noqa=DCO010
-# ruff: noqa: F821 [forward reference]
 
 from collections.abc import Callable
 from typing import Optional, Type
