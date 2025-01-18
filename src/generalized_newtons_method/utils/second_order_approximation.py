@@ -59,7 +59,8 @@ def second_order_approximation_coeffs(
         # Compute first-order approximation coefficient
         coeff_1 = torch.as_tensor(0.0)
         for param in model.parameters():
-            coeff_1 += torch.sum(param.grad * param.grad)
+            param_update = optimizer.get_param_update(param)
+            coeff_1 += torch.sum(param.grad * param_update)
 
         # Wrapper function for parameter-dependent loss
         # - This wrapper is compatible with `make_functional()`, which is
