@@ -39,14 +39,14 @@ def test_zeroth_order_approximation_coeff(
 
     # Compute coefficients with loss not specified
     # - Expected PyTorch deprecation warning for `make_functional()`
-    with pytest.warns(UserWarning):
+    with pytest.warns(FutureWarning):
         coeffs = second_order_approximation_coeffs(model, criterion, optimizer, x, y)
     assert len(coeffs) == 3, "Unexpected number of coefficients"
     assert coeffs[0] == loss, "Mismatch between actual and expected loss values"
 
     # Compute coefficients with loss specified
     # - Expected PyTorch deprecation warning for `make_functional()`
-    with pytest.warns(UserWarning):
+    with pytest.warns(FutureWarning):
         coeffs = second_order_approximation_coeffs(model, criterion, optimizer, x, y, loss)
     assert len(coeffs) == 3, "Unexpected number of coefficients"
     assert coeffs[0] == loss, "Mismatch between actual and expected loss values"
@@ -75,7 +75,7 @@ def test_first_order_approximation_coeff(
 
     # Compute coefficients with loss not specified
     # - Expected PyTorch deprecation warning for `make_functional()`
-    with pytest.warns(UserWarning):
+    with pytest.warns(FutureWarning):
         coeffs = second_order_approximation_coeffs(model, criterion, optimizer, x, y)
 
     with torch.no_grad():
@@ -114,7 +114,7 @@ def test_alpha_star_computation(
 
     # Get coefficients
     # - Expected PyTorch deprecation warning for `make_functional()`
-    with pytest.warns(UserWarning):
+    with pytest.warns(FutureWarning):
         coeffs = second_order_approximation_coeffs(model, criterion, optimizer, x, y, loss)
 
     # Make alpha_* numerator and denominator terms
