@@ -8,22 +8,22 @@ from jaxtyping import Float, jaxtyped
 from torch import Tensor, nn
 from typeguard import typechecked as typechecker
 
-from src.generalized_newtons_method import GeNOptimizer, make_gen_optimizer
-from src.generalized_newtons_method.types import CustomCriterionType
+from src.gen import GenOptimizer, make_gen_optimizer
+from src.gen.types import Criterion
 
 _OPTIMIZERS = ["optimizer_minimize", "optimizer_maximize"]
 
 
 @pytest.fixture(name="optimizer_minimize")
 @jaxtyped(typechecker=typechecker)
-def fixture_optimizer_minimize(model: nn.Module) -> GeNOptimizer:
+def fixture_optimizer_minimize(model: nn.Module) -> GenOptimizer:
     """Wrapped vanilla SGD optimizer (minimizing)."""
     return make_gen_optimizer(torch.optim.SGD, model.parameters())
 
 
 @pytest.fixture(name="optimizer_maximize")
 @jaxtyped(typechecker=typechecker)
-def fixture_optimizer_maximize(model: nn.Module) -> GeNOptimizer:
+def fixture_optimizer_maximize(model: nn.Module) -> GenOptimizer:
     """Wrapped vanilla SGD optimizer (maximizing)."""
     return make_gen_optimizer(torch.optim.SGD, model.parameters(), maximize=True)
 
@@ -33,9 +33,9 @@ def fixture_optimizer_maximize(model: nn.Module) -> GeNOptimizer:
 def test_creation(_optimizer: str, request) -> None:
     """Test wrapper class creation."""
     optimizer = request.getfixturevalue(_optimizer)
-    assert isinstance(optimizer, GeNOptimizer), "Invalid class type"
+    assert isinstance(optimizer, GenOptimizer), "Invalid class type"
     assert len(type(optimizer).__bases__) == 2, "Invalid inheritance pattern"
-    assert type(optimizer).__bases__[0] == GeNOptimizer, "Invalid superclass type"
+    assert type(optimizer).__bases__[0] == GenOptimizer, "Invalid superclass type"
     assert type(optimizer).__bases__[1] == torch.optim.SGD, "Invalid superclass type"
 
 
@@ -55,7 +55,7 @@ def test_get_update_invalid(model: nn.Module, _optimizer: str, request) -> None:
 def test_get_update_valid(
     model: nn.Module,
     _optimizer: str,
-    criterion: CustomCriterionType,
+    criterion: Criterion,
     x: Float[Tensor, "b input_dim"],
     y: Float[Tensor, "b output_dim"],
     request,
@@ -91,7 +91,7 @@ def test_get_update_valid(
 def test_computation_graph_sanity(
     model: nn.Module,
     _optimizer: str,
-    criterion: CustomCriterionType,
+    criterion: Criterion,
     x: Float[Tensor, "b input_dim"],
     y: Float[Tensor, "b output_dim"],
     request,

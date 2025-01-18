@@ -7,7 +7,7 @@ from torch import nn
 
 from src.examples.common import set_seed
 from src.examples.fully_connected import FullyConnected
-from src.generalized_newtons_method.utils import loss_per_learning_rate
+from src.gen.utils import loss_per_learning_rate
 
 
 def run_demo() -> None:

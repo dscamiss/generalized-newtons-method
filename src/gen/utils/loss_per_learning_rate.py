@@ -22,15 +22,15 @@ from numpy.typing import NDArray
 from torch import Tensor, nn
 from typeguard import typechecked as typechecker
 
-from ..gen_optimizer import GeNOptimizer
-from ..types import CriterionType, OptimizerType
+from ..gen_optimizer import GenOptimizer
+from ..types import Criterion, Optimizer
 
 
 @jaxtyped(typechecker=typechecker)
 def loss_per_learning_rate(
     model: nn.Module,
-    criterion: CriterionType,
-    optimizer: OptimizerType,
+    criterion: Criterion,
+    optimizer: Optimizer,
     x: Real[Tensor, "..."],
     y: Real[Tensor, "..."],
     learning_rates: NDArray,
@@ -76,7 +76,7 @@ def loss_per_learning_rate(
             param_group["lr"] = learning_rate
 
         # Update parameters
-        if isinstance(optimizer, GeNOptimizer):
+        if isinstance(optimizer, GenOptimizer):
             optimizer.step(training_step=False)
         else:
             optimizer.step()

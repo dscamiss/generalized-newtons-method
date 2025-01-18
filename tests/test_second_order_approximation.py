@@ -8,27 +8,27 @@ from jaxtyping import Float, jaxtyped
 from torch import Tensor, nn
 from typeguard import typechecked as typechecker
 
-from src.generalized_newtons_method import GeNOptimizer, make_gen_optimizer
-from src.generalized_newtons_method.types import CustomCriterionType
-from src.generalized_newtons_method.utils import second_order_approximation_coeffs
+from src.gen import GenOptimizer, make_gen_optimizer
+from src.gen.types import Criterion
+from src.gen.utils import second_order_approximation_coeffs
 
 
 @pytest.fixture(name="optimizer")
 @jaxtyped(typechecker=typechecker)
-def fixture_optimizer(model: nn.Module) -> GeNOptimizer:
+def fixture_optimizer(model: nn.Module) -> GenOptimizer:
     """Wrapped vanilla SGD optimizer."""
     return make_gen_optimizer(torch.optim.SGD, model.parameters())
 
 
 @jaxtyped(typechecker=typechecker)
-def test_second_order_approximation_coeff_0(
+def test_zeroth_order_approximation_coeff(
     model: nn.Module,
-    criterion: CustomCriterionType,
-    optimizer: GeNOptimizer,
+    criterion: Criterion,
+    optimizer: GenOptimizer,
     x: Float[Tensor, "b input_dim"],
     y: Float[Tensor, "b output_dim"],
 ) -> None:
-    """Test second-order approximation coefficient 0."""
+    """Test zeroth-order approximation coefficient."""
     # Compute gradients
     optimizer.zero_grad()
     loss = criterion(model(x), y)
@@ -53,15 +53,15 @@ def test_second_order_approximation_coeff_0(
 
 
 @jaxtyped(typechecker=typechecker)
-def test_second_order_approximation_coeff_1(
+def test_first_order_approximation_coeff(
     model: nn.Module,
-    criterion: CustomCriterionType,
-    optimizer: GeNOptimizer,
+    criterion: Criterion,
+    optimizer: GenOptimizer,
     x: Float[Tensor, "b input_dim"],
     y: Float[Tensor, "b output_dim"],
 ) -> None:
     """
-    Test second-order approximation coefficient 1.
+    Test first-order approximation coefficient.
 
     Note: This test is only valid for the vanilla SGD optimizer (minimizing).
     """
@@ -88,25 +88,21 @@ def test_second_order_approximation_coeff_1(
 
 
 @jaxtyped(typechecker=typechecker)
-def test_alpha_star(
+def test_alpha_star_computation(
     model: nn.Module,
-    criterion: CustomCriterionType,
-    optimizer: GeNOptimizer,
+    criterion: Criterion,
+    optimizer: GenOptimizer,
     x: Float[Tensor, "b input_dim"],
     y: Float[Tensor, "b output_dim"],
 ) -> None:
     """
-    Test second-order approximation.
+    Test second-order approximation by computing alpha_*.
 
-    Define "alpha_*" to be the learning rate which minimizes the second-order
-    Taylor series approximation of the loss-per-learning-rate function.  This
-    test derives alpha_* using `second_order_approximation_coeffs()` and
-    compares it to the theoretical value of alpha_*.
+    This test derives alpha_* using second-order approximation coefficients,
+    and compares it to the theoretical value for this particular case.
 
     A derivation of the theoretical value of alpha_* is here:
         https://dscamiss.github.io/blog/posts/generalized_newtons_method/
-
-    Note: This test is only valid for the vanilla SGD optimizer (minimizing).
     """
     # Compute gradients
     optimizer.zero_grad()

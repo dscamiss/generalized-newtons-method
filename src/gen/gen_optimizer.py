@@ -10,17 +10,17 @@ from jaxtyping import Real, jaxtyped
 from torch import Tensor
 from typeguard import typechecked as typechecker
 
-from src.generalized_newtons_method.types import OptimizerType
+from src.gen.types import Optimizer
 
-_StepClosureType = Optional[Callable[[], float]]
+_Closure = Optional[Callable[[], float]]
 
 
-class GeNOptimizer:  # pylint: disable=too-few-public-methods
-    """Empty class for wrapper class identification."""
+class GenOptimizer:  # pylint: disable=too-few-public-methods
+    """Empty class used for wrapper class identification."""
 
 
 @jaxtyped(typechecker=typechecker)
-def make_gen_optimizer(base_optimizer_class: Type[OptimizerType], *args, **kwargs) -> GeNOptimizer:
+def make_gen_optimizer(base_optimizer_class: Type[Optimizer], *args, **kwargs) -> GenOptimizer:
     """
     Make wrapped optimizer for GeN.
 
@@ -36,7 +36,7 @@ def make_gen_optimizer(base_optimizer_class: Type[OptimizerType], *args, **kwarg
         without tweaking the base optimizers.
     """
 
-    class WrappedOptimizer(GeNOptimizer, base_optimizer_class):
+    class WrappedOptimizer(GenOptimizer, base_optimizer_class):
         """Wrapper class for base optimizer class."""
 
         def __init__(self, *args, **kwargs) -> None:
@@ -111,7 +111,7 @@ def make_gen_optimizer(base_optimizer_class: Type[OptimizerType], *args, **kwarg
             self._param_update_cache = {}
             self._param_updates_available = False
 
-        def step(self, closure: _StepClosureType = None, training_step: bool = True) -> None:
+        def step(self, closure: _Closure = None, training_step: bool = True) -> None:
             """
             Run optimizer for a single step.
 
@@ -131,7 +131,7 @@ def make_gen_optimizer(base_optimizer_class: Type[OptimizerType], *args, **kwarg
             """
             # Sanity check on parameters
             if closure is not None:
-                raise NotImplementedError("Closure argument is not implemented")
+                raise NotImplementedError("Closure argument is not supported")
 
             # Run base optimizer step
             super().step()

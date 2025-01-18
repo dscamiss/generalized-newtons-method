@@ -9,12 +9,12 @@ from torch import Tensor, nn
 from torch.optim.lr_scheduler import LRScheduler
 from typeguard import typechecked as typechecker
 
-from src.generalized_newtons_method.gen_optimizer import GeNOptimizer
-from src.generalized_newtons_method.types import CriterionType
-from src.generalized_newtons_method.utils import second_order_approximation_coeffs
+from src.gen.gen_optimizer import GenOptimizer
+from src.gen.types import Criterion
+from src.gen.utils import second_order_approximation_coeffs
 
 
-class ExactGeNLR(LRScheduler):
+class ExactGen(LRScheduler):
     """Exact version of generalized Newton's method.
 
     Args:
@@ -34,10 +34,10 @@ class ExactGeNLR(LRScheduler):
     @jaxtyped(typechecker=typechecker)
     def __init__(  # noqa: DCO010
         self,
-        optimizer: GeNOptimizer,
+        optimizer: GenOptimizer,
         last_epoch: int,
         model: nn.Module,
-        criterion: CriterionType,
+        criterion: Criterion,
         lr_min: float,
         lr_max: float,
     ) -> None:

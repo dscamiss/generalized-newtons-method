@@ -14,8 +14,8 @@ from torch import Tensor, nn
 from torch.autograd.functional import vhp
 from typeguard import typechecked as typechecker
 
-from ..gen_optimizer import GeNOptimizer
-from ..types import CriterionType
+from ..gen_optimizer import GenOptimizer
+from ..types import Criterion
 
 _TensorDict = dict[str, Real[Tensor, "..."]]
 _Scalar = Real[Tensor, ""]
@@ -26,8 +26,8 @@ _ScalarThreeTuple = tuple[_Scalar, _Scalar, _Scalar]
 @jaxtyped(typechecker=typechecker)
 def second_order_approximation_coeffs(
     model: nn.Module,
-    criterion: CriterionType,
-    optimizer: GeNOptimizer,
+    criterion: Criterion,
+    optimizer: GenOptimizer,
     x: Real[Tensor, "..."],
     y: Real[Tensor, "..."],
     loss: Optional[_Scalar] = None,
@@ -90,8 +90,8 @@ def second_order_approximation_coeffs(
 @jaxtyped(typechecker=typechecker)
 def second_order_approximation(
     model: nn.Module,
-    criterion: CriterionType,
-    optimizer: GeNOptimizer,
+    criterion: Criterion,
+    optimizer: GenOptimizer,
     x: Real[Tensor, "..."],
     y: Real[Tensor, "..."],
     learning_rates: NDArray,

@@ -8,7 +8,7 @@ from typeguard import typechecked as typechecker
 
 from src.examples.common import set_seed
 from src.examples.fully_connected import FullyConnected
-from src.generalized_newtons_method.types import CustomCriterionType
+from src.gen.types import Criterion
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -42,7 +42,7 @@ def fixture_model(input_dim: int, output_dim: int) -> nn.Module:
 
 @pytest.fixture(name="criterion")
 @jaxtyped(typechecker=typechecker)
-def fixture_criterion(output_dim: int) -> CustomCriterionType:  # pylint: disable=unused-argument
+def fixture_criterion(output_dim: int) -> Criterion:  # pylint: disable=unused-argument
     """Criterion `nn.MSELoss()` with custom normalization."""
 
     @jaxtyped(typechecker=typechecker)

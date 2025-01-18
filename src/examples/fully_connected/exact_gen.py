@@ -13,7 +13,7 @@ from torch.utils.data import DataLoader, Dataset
 
 from src.examples.common import set_seed
 from src.examples.fully_connected import FullyConnected
-from src.generalized_newtons_method import ExactGeNLR, make_gen_optimizer
+from src.gen import ExactGen, make_gen_optimizer
 
 
 @dataclass
@@ -37,7 +37,7 @@ class DemoConfig:
     batch_size: int = 32
     num_epochs: int = 200
     lr_min: float = 0.0
-    lr_max: float = 0.1
+    lr_max: float = 0.001
 
 
 class SyntheticRegressionDataset(Dataset):
@@ -96,7 +96,7 @@ class Trainer:
         self.optimizer = make_gen_optimizer(torch.optim.SGD, self.model.parameters())
 
         # Make exact GeN learning rate scheduler
-        self.scheduler = ExactGeNLR(
+        self.scheduler = ExactGen(
             self.optimizer, -1, self.model, self.criterion, self.config.lr_min, self.config.lr_max
         )
 

@@ -10,13 +10,13 @@ from numpy.typing import NDArray
 from torch import Tensor, nn
 from typeguard import typechecked as typechecker
 
-from src.generalized_newtons_method.types import CustomCriterionType, OptimizerType
-from src.generalized_newtons_method.utils import loss_per_learning_rate
+from src.gen.types import Criterion, Optimizer
+from src.gen.utils import loss_per_learning_rate
 
 
 @pytest.fixture(name="optimizer")
 @jaxtyped(typechecker=typechecker)
-def fixture_optimizer(model: nn.Module) -> OptimizerType:
+def fixture_optimizer(model: nn.Module) -> Optimizer:
     """Vanilla SGD optimizer."""
     return torch.optim.SGD(model.parameters())
 
@@ -30,8 +30,8 @@ def fixture_learning_rates() -> NDArray:
 @jaxtyped(typechecker=typechecker)
 def test_loss_per_learning_rate_invalid_model(
     model: nn.Module,
-    criterion: CustomCriterionType,
-    optimizer: OptimizerType,
+    criterion: Criterion,
+    optimizer: Optimizer,
     x: Float[Tensor, "b input_dim"],
     y: Float[Tensor, "b output_dim"],
     learning_rates: NDArray,
@@ -45,8 +45,8 @@ def test_loss_per_learning_rate_invalid_model(
 @jaxtyped(typechecker=typechecker)
 def test_loss_per_learning_rate_output(
     model: nn.Module,
-    criterion: CustomCriterionType,
-    optimizer: OptimizerType,
+    criterion: Criterion,
+    optimizer: Optimizer,
     x: Float[Tensor, "b input_dim"],
     y: Float[Tensor, "b output_dim"],
     learning_rates: NDArray,
@@ -77,8 +77,8 @@ def test_loss_per_learning_rate_output(
 @jaxtyped(typechecker=typechecker)
 def test_loss_per_learning_rate_output_size(
     model: nn.Module,
-    criterion: CustomCriterionType,
-    optimizer: OptimizerType,
+    criterion: Criterion,
+    optimizer: Optimizer,
     x: Float[Tensor, "b input_dim"],
     y: Float[Tensor, "b output_dim"],
     learning_rates: NDArray,
@@ -96,8 +96,8 @@ def test_loss_per_learning_rate_output_size(
 @jaxtyped(typechecker=typechecker)
 def test_loss_per_learning_rate_side_effects(
     model: nn.Module,
-    criterion: CustomCriterionType,
-    optimizer: OptimizerType,
+    criterion: Criterion,
+    optimizer: Optimizer,
     x: Float[Tensor, "b input_dim"],
     y: Float[Tensor, "b output_dim"],
     learning_rates: NDArray,

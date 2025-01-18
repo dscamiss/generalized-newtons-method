@@ -7,8 +7,8 @@ from torch import nn
 
 from src.examples.common import set_seed
 from src.examples.fully_connected import FullyConnected
-from src.generalized_newtons_method import make_gen_optimizer
-from src.generalized_newtons_method.utils import loss_per_learning_rate, second_order_approximation
+from src.gen import make_gen_optimizer
+from src.gen.utils import loss_per_learning_rate, second_order_approximation
 
 
 def run_demo():
