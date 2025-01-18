@@ -3,6 +3,8 @@
 # flake8: noqa=DCO010
 # pylint: disable=missing-function-docstring
 
+from typing import Any
+
 from jaxtyping import Float, jaxtyped
 from torch import Tensor, nn
 from typeguard import typechecked as typechecker
@@ -34,7 +36,7 @@ class FullyConnected(nn.Module):
         self.negative_slope = negative_slope
         self.final_activation = final_activation
 
-        layers = []
+        layers: list[Any] = []
 
         if not hidden_layer_dims:
             # Edge case: No hidden layers

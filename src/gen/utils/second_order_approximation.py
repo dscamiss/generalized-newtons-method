@@ -68,7 +68,7 @@ def second_order_approximation_coeffs(
         #   to be no analogue of `torch.autograd.functional.vhp()` which can
         #   be used with the alternative `torch.func.functional_call()`.
         # - TODO: Investigate this further... alternatives to `vhp()`?
-        def parameterized_loss(*params):
+        def parameterized_loss(*params: Tensor) -> Tensor:
             model_func, _ = make_functional(model)
             y_hat = model_func(params, x)
             return criterion(y_hat, y)

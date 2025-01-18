@@ -21,6 +21,7 @@ from jaxtyping import Real, jaxtyped
 from numpy.typing import NDArray
 from torch import Tensor, nn
 from typeguard import typechecked as typechecker
+from typing import Union
 
 from ..gen_optimizer import GenOptimizer
 from ..types import Criterion, Optimizer
@@ -30,7 +31,7 @@ from ..types import Criterion, Optimizer
 def loss_per_learning_rate(
     model: nn.Module,
     criterion: Criterion,
-    optimizer: Optimizer,
+    optimizer: Union[GenOptimizer, Optimizer],
     x: Real[Tensor, "..."],
     y: Real[Tensor, "..."],
     learning_rates: NDArray,

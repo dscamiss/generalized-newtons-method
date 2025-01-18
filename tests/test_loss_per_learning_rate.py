@@ -1,5 +1,7 @@
 """Tests for loss_per_learning_rate.py."""
 
+# mypy: disable-error-code=no-untyped-def
+
 import copy
 
 import numpy as np

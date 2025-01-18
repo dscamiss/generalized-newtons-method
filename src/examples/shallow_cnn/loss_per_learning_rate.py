@@ -4,6 +4,7 @@
 # pylint: disable=missing-function-docstring, not-callable
 
 from pathlib import Path
+from numpy.typing import NDArray
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -24,7 +25,7 @@ def run_demo_untrained(train_loader: torch.utils.data.DataLoader) -> None:
     """
     learning_rates = np.linspace(0.0, 0.5, 100)
     num_plots = 10
-    losses = np.ndarray((len(learning_rates), num_plots))
+    losses: NDArray = np.ndarray((len(learning_rates), num_plots))
 
     # Make shallow CNN model
     model = ShallowCNN()
@@ -73,7 +74,7 @@ def run_demo_trained(
     """
     learning_rates = np.linspace(0.0, 0.5, 100)
     num_plots = 10
-    losses = np.ndarray((len(learning_rates), num_plots))
+    losses: NDArray = np.ndarray((len(learning_rates), num_plots))
 
     # Make shallow CNN model
     model = ShallowCNN()

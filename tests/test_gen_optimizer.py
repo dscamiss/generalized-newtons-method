@@ -1,6 +1,7 @@
 """Tests for gen_optimizer.py."""
 
 # flake8: noqa=D401
+# mypy: disable-error-code=no-untyped-def
 
 import pytest
 import torch

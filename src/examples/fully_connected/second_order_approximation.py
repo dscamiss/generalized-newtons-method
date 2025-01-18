@@ -11,7 +11,7 @@ from src.gen import make_gen_optimizer
 from src.gen.utils import loss_per_learning_rate, second_order_approximation
 
 
-def run_demo():
+def run_demo() -> None:
     """Run demo for a fully-connected neural network."""
     batch_size = 16
     input_dim = 8

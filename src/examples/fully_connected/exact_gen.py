@@ -8,7 +8,7 @@ from typing import Optional
 
 import matplotlib.pyplot as plt
 import torch
-from torch import nn
+from torch import nn, Tensor
 from torch.utils.data import DataLoader, Dataset
 
 from src.examples.common import set_seed
@@ -60,10 +60,10 @@ class SyntheticRegressionDataset(Dataset):
         self.y = nn.functional.linear(self.x, self.A, self.b)  # pylint: disable=not-callable
         self.y = self.y + (config.noise_std * torch.randn_like(self.y))
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.x)
 
-    def __getitem__(self, idx: int):
+    def __getitem__(self, idx: int) -> tuple[Tensor, Tensor]:
         return self.x[idx], self.y[idx]
 
 
@@ -78,7 +78,7 @@ class Trainer:
 
     def __init__(self, device: Optional[str] = None, config: Optional[DemoConfig] = None) -> None:
         # Helper function to get current device name
-        def get_device() -> str:
+        def get_device() -> torch.device:
             return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # Get default configuration, if necessary
@@ -101,8 +101,8 @@ class Trainer:
         )
 
         # Metrics to track in each epoch
-        self.train_losses = []
-        self.learning_rates = []
+        self.train_losses: list[float] = []
+        self.learning_rates: list[float] = []
 
     def train(self) -> tuple[list[float], list[float]]:
         """

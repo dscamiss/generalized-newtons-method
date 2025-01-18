@@ -3,6 +3,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from numpy.typing import NDArray
 from torch import nn
 
 from src.examples.common import set_seed
@@ -14,7 +15,7 @@ def run_demo() -> None:
     """Run demo for a fully-connected neural network."""
     learning_rates = np.linspace(0.0, 5.0, 100)
     num_plots = 10
-    losses = np.ndarray((len(learning_rates), num_plots))
+    losses: NDArray = np.ndarray((len(learning_rates), num_plots))
 
     batch_size = 16
     input_dim = 8

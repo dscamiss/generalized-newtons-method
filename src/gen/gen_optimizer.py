@@ -3,7 +3,7 @@
 # flake8: noqa=DCO010
 
 from collections.abc import Callable
-from typing import Optional, Type
+from typing import Any, Optional, Type
 
 import torch
 from jaxtyping import Real, jaxtyped
@@ -19,12 +19,14 @@ class GenOptimizer:  # pylint: disable=too-few-public-methods
     """Empty class used for wrapper class identification."""
 
 
-@jaxtyped(typechecker=typechecker)
-def make_gen_optimizer(base_optimizer_class: Type[Optimizer], *args, **kwargs) -> GenOptimizer:
+def make_gen_optimizer(
+    base_optimizer_class: Type[Optimizer], *args: Any, **kwargs: dict[str, Any]
+) -> GenOptimizer:
     """
-    Make wrapped optimizer for GeN.
+    Make wrapped optimizer for GeN that tracks parameter updates.
 
-    The wrapper adds parameter update tracking.
+    Args:
+        base_optimizer_class: Base optimizer class.
 
     Note:
       - In the function `compute_param_updates()`, we compute the current
@@ -39,10 +41,10 @@ def make_gen_optimizer(base_optimizer_class: Type[Optimizer], *args, **kwargs) -
     class WrappedOptimizer(GenOptimizer, base_optimizer_class):
         """Wrapper class for base optimizer class."""
 
-        def __init__(self, *args, **kwargs) -> None:
+        def __init__(self, *args: Any, **kwargs: dict[str, Any]) -> None:
             super().__init__(*args, **kwargs)
-            self._param_cache = {}
-            self._param_update_cache = {}
+            self._param_cache: dict[Tensor, Tensor] = {}
+            self._param_update_cache: dict[Tensor, Tensor] = {}
             self._param_updates_available = False
 
         def _refresh_param_cache(self) -> None:
