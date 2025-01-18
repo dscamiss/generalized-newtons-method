@@ -1,4 +1,17 @@
-"""Compute loss-per-learning-rate function."""
+"""
+Compute loss-per-learning-rate function.
+
+This is the function f() that takes a learning rate alpha and returns
+
+    f(alpha) = loss(theta - alpha * update(...)),
+
+where:
+    - theta is the lumped model parameters,
+    - update(...) is the parameter update prescribed by the optimizer, and
+    - loss() is the (parameter-dependent) loss function.
+
+Note that this definition uses a common learning rate for ALL parameters.
+"""
 
 import copy
 
@@ -25,23 +38,16 @@ def loss_per_learning_rate(
     """
     Compute loss-per-learning-rate function.
 
-    Given learning rates lr_i, this function computes the loss values after
-    running a single optimizer step with learning rate lr_i applied to ALL
-    parameter groups.
-
-    This function does not produce meaningful output for more complicated
-    optimizer configs, where the learning rate varies by parameter group.
-
     Args:
         model: Network model (in evaluation mode).
         criterion: Loss criterion.
         optimizer: Optimizer for model parameters.
         x: Input tensor.
         y: Output tensor (target).
-        learning_rates: List of learning rates (must be non-empty).
+        learning_rates: Learning rate inputs.
 
     Returns:
-        Array of loss values for each learning rate in `learning_rates`.
+        Loss values for each learning rate input.
 
     Raises:
         ValueError: If any arguments are invalid.
@@ -55,7 +61,7 @@ def loss_per_learning_rate(
 
     # Sanity check on `learning_rates` argument
     if len(learning_rates) == 0:
-        raise ValueError("learning_rates is empty")
+        raise ValueError("learning_rates argument is empty")
 
     # Store one loss value for each learning rate
     losses = np.zeros(len(learning_rates))

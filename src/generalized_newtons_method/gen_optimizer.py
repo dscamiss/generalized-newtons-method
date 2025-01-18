@@ -101,8 +101,7 @@ def make_gen_optimizer(base_optimizer_class: Type[OptimizerType], *args, **kwarg
                 ValueError: If current parameter updates are not available.
             """
             if not self._param_updates_available:
-                err_str = "Parameter updates are not available (did you run compute_param_updates()?)."
-                raise ValueError(err_str)
+                raise ValueError("Parameter updates are not available")
 
             return self._param_update_cache[param]
 

@@ -1,4 +1,4 @@
-"""Tests for taylor_series_approximations.py."""
+"""Tests for second_order_approximation.py."""
 
 # flake8: noqa=D401
 
@@ -84,7 +84,7 @@ def test_second_order_approximation_coeff_1(
             expected_coeff += torch.sum(param.grad * param.grad)
 
     err_str = "Mismatch between actual and expected coefficients"
-    assert -expected_coeff == coeffs[1], err_str
+    assert torch.allclose(-expected_coeff, coeffs[1]), err_str
 
 
 @jaxtyped(typechecker=typechecker)
