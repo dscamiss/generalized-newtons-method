@@ -9,9 +9,9 @@ from torch import Tensor, nn
 from torch.optim.lr_scheduler import LRScheduler
 from typeguard import typechecked as typechecker
 
-from src.gen.gen_optimizer import GenOptimizer
-from src.gen.types import Criterion
-from src.gen.utils import second_order_approximation_coeffs
+from src.generalized_newtons_method.gen_optimizer import GenOptimizer
+from src.generalized_newtons_method.types import Criterion
+from src.generalized_newtons_method.utils import second_order_approximation_coeffs
 
 
 class ExactGen(LRScheduler):

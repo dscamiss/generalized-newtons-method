@@ -10,7 +10,7 @@ from jaxtyping import Real, jaxtyped
 from torch import Tensor
 from typeguard import typechecked as typechecker
 
-from src.gen.types import Optimizer
+from src.generalized_newtons_method.types import Optimizer
 
 _Closure = Optional[Callable[[], float]]
 

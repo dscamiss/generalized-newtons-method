@@ -4,17 +4,17 @@
 # pylint: disable=missing-function-docstring, not-callable
 
 from pathlib import Path
-from numpy.typing import NDArray
 
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from numpy.typing import NDArray
 from torch import nn
 from torchvision import datasets, transforms
 
 from src.examples.common import set_seed
 from src.examples.shallow_cnn import ShallowCNN
-from src.gen.utils import loss_per_learning_rate
+from src.generalized_newtons_method.utils import loss_per_learning_rate
 
 
 def run_demo_untrained(train_loader: torch.utils.data.DataLoader) -> None:

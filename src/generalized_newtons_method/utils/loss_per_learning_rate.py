@@ -14,6 +14,7 @@ Note that this definition uses a common learning rate for ALL parameters.
 """
 
 import copy
+from typing import Union
 
 import numpy as np
 import torch
@@ -21,7 +22,6 @@ from jaxtyping import Real, jaxtyped
 from numpy.typing import NDArray
 from torch import Tensor, nn
 from typeguard import typechecked as typechecker
-from typing import Union
 
 from ..gen_optimizer import GenOptimizer
 from ..types import Criterion, Optimizer

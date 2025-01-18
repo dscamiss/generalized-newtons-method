@@ -8,7 +8,7 @@ from typeguard import typechecked as typechecker
 
 from src.examples.common import set_seed
 from src.examples.fully_connected import FullyConnected
-from src.gen.types import Criterion
+from src.generalized_newtons_method.types import Criterion
 
 
 @pytest.fixture(scope="session", autouse=True)

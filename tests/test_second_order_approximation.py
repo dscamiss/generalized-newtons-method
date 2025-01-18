@@ -9,9 +9,9 @@ from jaxtyping import Float, jaxtyped
 from torch import Tensor, nn
 from typeguard import typechecked as typechecker
 
-from src.gen import GenOptimizer, make_gen_optimizer
-from src.gen.types import Criterion
-from src.gen.utils import second_order_approximation_coeffs
+from src.generalized_newtons_method import GenOptimizer, make_gen_optimizer
+from src.generalized_newtons_method.types import Criterion
+from src.generalized_newtons_method.utils import second_order_approximation_coeffs
 
 
 @pytest.fixture(name="optimizer")

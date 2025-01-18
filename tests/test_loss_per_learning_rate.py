@@ -12,8 +12,8 @@ from numpy.typing import NDArray
 from torch import Tensor, nn
 from typeguard import typechecked as typechecker
 
-from src.gen.types import Criterion, Optimizer
-from src.gen.utils import loss_per_learning_rate
+from src.generalized_newtons_method.types import Criterion, Optimizer
+from src.generalized_newtons_method.utils import loss_per_learning_rate
 
 
 @pytest.fixture(name="optimizer")

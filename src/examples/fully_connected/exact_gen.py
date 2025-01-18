@@ -8,12 +8,12 @@ from typing import Optional
 
 import matplotlib.pyplot as plt
 import torch
-from torch import nn, Tensor
+from torch import Tensor, nn
 from torch.utils.data import DataLoader, Dataset
 
 from src.examples.common import set_seed
 from src.examples.fully_connected import FullyConnected
-from src.gen import ExactGen, make_gen_optimizer
+from src.generalized_newtons_method import ExactGen, make_gen_optimizer
 
 
 @dataclass
