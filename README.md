@@ -1,4 +1,4 @@
-## generalized-newtons-method (WIP)
+## generalized-newtons-method
 
 ![Build](https://github.com/dscamiss/generalized-newtons-method/actions/workflows/python-package.yml/badge.svg)
 
@@ -48,6 +48,12 @@ for x, y in dataloader:
     scheduler.step(x, y)  # <-- Note additional arguments
     optimizer.step()
 ```
+
+## TODO
+
+- [x] Add test cases to verify second-order coefficients
+- [ ] Add approximate version
+- [ ] Add shallow CNN training example
 
 ## References
 
