@@ -19,7 +19,6 @@ class ExactGen(LRScheduler):
 
     Args:
         optimizer: Optimizer.
-        last_epoch: Number of last epoch.
         model: Network model.
         criterion: Loss criterion function.
         lr_min: Minimum learning rate to use.
@@ -31,17 +30,16 @@ class ExactGen(LRScheduler):
 
     _FALLBACK_LR = 1e-3
 
-    @jaxtyped(typechecker=typechecker)
     def __init__(  # noqa: DCO010
         self,
         optimizer: GenOptimizer,
-        last_epoch: int,
         model: nn.Module,
         criterion: Criterion,
         lr_min: float,
         lr_max: float,
     ) -> None:
-        super().__init__(optimizer, last_epoch)
+        # Parameter `last_epoch` unused since LR is not epoch/batch-based
+        super().__init__(optimizer, -1)
 
         self.model = model
         self.criterion = criterion

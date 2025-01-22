@@ -97,7 +97,7 @@ class Trainer:
 
         # Make exact GeN learning rate scheduler
         self.scheduler = ExactGen(
-            self.optimizer, -1, self.model, self.criterion, self.config.lr_min, self.config.lr_max
+            self.optimizer, self.model, self.criterion, self.config.lr_min, self.config.lr_max
         )
 
         # Metrics to track in each epoch
