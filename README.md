@@ -28,7 +28,7 @@ import generalized_newtons_method as gen
 * Call `make_gen_optimizer()` to make a wrapped version of your favorite optimizer:
 
 ```python
-optimizer = gen.make_gen_optimizer(torch.optim.Adam, model.parameters(), lr=1e-5, ...)
+optimizer = gen.make_gen_optimizer(torch.optim.AdamW, model.parameters())
 ```
 
 * Create the learning rate scheduler:
@@ -52,7 +52,7 @@ for x, y in dataloader:
 ## TODO
 
 - [x] Add test cases to verify second-order coefficients
-- [ ] Add approximate version
+- [ ] Add "approximate version"
 - [ ] Add shallow CNN training example
 
 ## References
