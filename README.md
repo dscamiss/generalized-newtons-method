@@ -1,4 +1,4 @@
-## generalized-newtons-method (WIP)
+## generalized-newtons-method
 
 ![Build](https://github.com/dscamiss/generalized-newtons-method/actions/workflows/python-package.yml/badge.svg)
 
@@ -28,13 +28,14 @@ import generalized_newtons_method as gen
 * Call `make_gen_optimizer()` to make a wrapped version of your favorite optimizer:
 
 ```python
-optimizer = gen.make_gen_optimizer(torch.optim.Adam, model.parameters(), lr=1e-5, ...)
+optimizer = gen.make_gen_optimizer(torch.optim.AdamW, model.parameters())
 ```
 
 * Create the learning rate scheduler:
 
 ```python
-scheduler = gen.ExactGen(optimizer, -1, model, criterion, lr_min, lr_max)
+lr_min, lr_max = 0.0, 1e-3  # Clamp learning rate between `lr_min` and `lr_max`
+scheduler = gen.ExactGen(optimizer, model, criterion, lr_min, lr_max)
 ```
 
 * Run standard training loop:
@@ -47,6 +48,12 @@ for x, y in dataloader:
     scheduler.step(x, y)  # <-- Note additional arguments
     optimizer.step()
 ```
+
+## TODO
+
+- [x] Add test cases to verify second-order coefficients
+- [ ] Add "approximate version"
+- [ ] Add shallow CNN training example
 
 ## References
 
