@@ -34,6 +34,7 @@ optimizer = gen.make_gen_optimizer(torch.optim.Adam, model.parameters(), lr=1e-5
 * Create the learning rate scheduler:
 
 ```python
+lr_min, lr_max = 0.0, 1e-3  # Clamp learning rate between `lr_min` and `lr_max`
 scheduler = gen.ExactGen(optimizer, -1, model, criterion, lr_min, lr_max)
 ```
 
