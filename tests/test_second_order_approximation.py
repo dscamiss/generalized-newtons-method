@@ -129,7 +129,7 @@ def test_nonlinear_model(difference: Criterion) -> None:
             """Run forward pass."""
             return torch.inner(self.weight, self.weight) * x
 
-    model = TestNonlinear()
+    model = TestNonlinear().eval()
 
     # Make vanilla SGD optimizer
     sgd = make_gen_optimizer(torch.optim.SGD, model.parameters())

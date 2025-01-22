@@ -66,8 +66,8 @@ class ExactGen(LRScheduler):
         lrs = self.get_lr(x, y)
 
         # Update learning rates in the optimizer
-        for param_group, lr in zip(self.optimizer.param_groups, lrs):
-            param_group["lr"] = lr
+        for group, lr in zip(self.optimizer.param_groups, lrs):
+            group["lr"] = lr
 
         return lrs
 

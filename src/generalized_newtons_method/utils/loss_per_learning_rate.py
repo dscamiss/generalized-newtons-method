@@ -73,8 +73,8 @@ def loss_per_learning_rate(
 
     for i, learning_rate in enumerate(learning_rates):
         # Update learning rate in each parameter group
-        for param_group in optimizer.param_groups:
-            param_group["lr"] = learning_rate
+        for group in optimizer.param_groups:
+            group["lr"] = learning_rate
 
         # Update parameters
         if isinstance(optimizer, GenOptimizer):

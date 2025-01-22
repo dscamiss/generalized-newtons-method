@@ -48,9 +48,15 @@ def second_order_approximation_coeffs(
     Returns:
         Tuple with approximation coefficients.
 
+    Raises:
+        ValueError: If any arguments are invalid.
+
     Note:
         Output entry `i` is the `i`th-order approximation coefficient.
     """
+    # Sanity check on `model` argument
+    if model.training:
+        raise ValueError("Model is not in evaluation mode")
 
     with torch.no_grad():
         # Compute zeroth-order approximation coefficient
