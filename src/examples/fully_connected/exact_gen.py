@@ -37,7 +37,7 @@ class DemoConfig:
     batch_size: int = 32
     num_epochs: int = 200
     lr_min: float = 0.0
-    lr_max: float = 0.001
+    lr_max: float = 0.1
 
 
 class SyntheticRegressionDataset(Dataset):

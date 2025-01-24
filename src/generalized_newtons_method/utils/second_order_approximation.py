@@ -43,7 +43,10 @@ def second_order_approximation_coeffs(
         optimizer: Optimizer for model parameters.
         x: Input tensor.
         y: Output tensor (target).
-        loss: Optional loss value (default = `None`).
+        loss: Optional loss value (default = `None`).  This argument is only
+            useful when the loss value has already been computed prior to
+            calling this function -- in this case, we can re-use the loss
+            value for the zeroth-order coefficient.
 
     Returns:
         Tuple with approximation coefficients.
@@ -52,11 +55,18 @@ def second_order_approximation_coeffs(
         ValueError: If any arguments are invalid.
 
     Note:
+        The `loss` argument MUST be computed with `model` in evaluation mode.
+
+    Note:
         Output entry `i` is the `i`th-order approximation coefficient.
     """
-    # Sanity check on `model` argument
-    if model.training:
-        raise ValueError("Model is not in evaluation mode")
+    # Sanity check on interplay of `loss` and `model` arguments
+    if loss is not None and model.training:
+        raise ValueError("Loss argument is provided but model is not in evaluation mode")
+
+    # Ensure model is in evaluation mode (disables dropout etc.)
+    model_was_training = model.training
+    model.eval()
 
     with torch.no_grad():
         # Compute zeroth-order approximation coefficient
@@ -90,6 +100,10 @@ def second_order_approximation_coeffs(
 
         for i, param_update in enumerate(param_updates):
             coeff_2 += torch.sum(param_update * prod[i])
+
+    # Restore `model.training` value
+    if model_was_training:
+        model.train()
 
     return (coeff_0, -coeff_1, coeff_2 / 2.0)
 

@@ -164,8 +164,35 @@ def test_nonlinear_model(difference: Criterion) -> None:
     assert torch.isclose(coeffs[2], expected_coeff_2), "Error in second-order coefficient"
 
 
-def test_loss_argument(
+def test_determinism(
     model: nn.Module,
+    mse: Criterion,
+    gen_sgd_minimize: GenOptimizer,
+    x: Float[Tensor, "b input_dim"],
+    y: Float[Tensor, "b output_dim"],
+) -> None:
+    """Test deterministic behavior."""
+    # Alias for brevity
+    sgd = gen_sgd_minimize
+
+    # Compute gradients
+    sgd.zero_grad()
+    loss = mse(model(x), y)
+    loss.backward()
+
+    # Compute parameter updates
+    gen_sgd_minimize.compute_param_updates()
+
+    # Compute approximation coefficients twice to check determinism
+    # - Expected PyTorch deprecation warning for `make_functional()`
+    with pytest.warns(FutureWarning):
+        coeffs_1 = second_order_approximation_coeffs(model, mse, sgd, x, y, loss)
+        coeffs_2 = second_order_approximation_coeffs(model, mse, sgd, x, y, loss)
+        assert coeffs_1 == coeffs_2, "Unexpected non-deterministic behavior"
+
+
+def test_loss_argument(
+    model: nn.Module,  # Fixture created in evaluation mode
     mse: Criterion,
     gen_sgd_minimize: GenOptimizer,
     x: Float[Tensor, "b input_dim"],
@@ -183,15 +210,33 @@ def test_loss_argument(
     # Compute parameter updates
     gen_sgd_minimize.compute_param_updates()
 
-    # Compute approximation coefficients
+    # Compute approximation coefficients for various cases
     # - Expected PyTorch deprecation warning for `make_functional()`
+    err_str = "Error in loss value"
+
+    # Case 1: Evaluation mode, loss specified
     with pytest.warns(FutureWarning):
         coeffs = second_order_approximation_coeffs(model, mse, sgd, x, y, loss)
-        assert coeffs[0] == loss, "Error in loss value"
+        assert coeffs[0] == loss, err_str
 
+    # Case 2: Evaluation mode, loss not specified
     with pytest.warns(FutureWarning):
         coeffs = second_order_approximation_coeffs(model, mse, sgd, x, y)
-        assert coeffs[0] == loss, "Error in loss value"
+        assert coeffs[0] == loss, err_str
+
+    # Case 3: Training mode, loss specified
+    model.train()
+    with pytest.raises(ValueError):
+        coeffs = second_order_approximation_coeffs(model, mse, sgd, x, y, loss)
+        assert coeffs[0] == loss, err_str
+    model.eval()
+
+    # Case 4: Training mode, loss not specified
+    model.train()
+    with pytest.warns(FutureWarning):
+        coeffs = second_order_approximation_coeffs(model, mse, sgd, x, y)
+        assert coeffs[0] == loss, err_str
+    model.eval()
 
 
 @jaxtyped(typechecker=typechecker)
