@@ -25,7 +25,14 @@ pip install generalized-newtons-method
 import generalized_newtons_method as gen
 ```
 
-* Call `make_gen_optimizer()` to make a wrapped version of your favorite optimizer:
+* Make your model and loss criterion:
+
+```
+model = MyModel()
+criterion = MyLossCriterion()
+```
+
+* Call `make_gen_optimizer()` to make a wrapped version of your desired optimizer:
 
 ```python
 optimizer = gen.make_gen_optimizer(torch.optim.AdamW, model.parameters())
