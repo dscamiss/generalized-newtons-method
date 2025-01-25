@@ -54,10 +54,7 @@ def make_gen_optimizer(
                     self._param_cache[param] = param.clone().detach()
 
         def _refresh_param_update_cache(self) -> None:
-            """
-            Run a single optimizer step.
-
-            """
+            """Refresh parameter update cache with current parameter updates."""
             # Refresh parameter cache
             self._refresh_param_cache()
 
