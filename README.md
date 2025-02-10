@@ -1,6 +1,12 @@
 ## generalized-newtons-method
 
+![License](https://img.shields.io/badge/license-MIT-blue)
+![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?logo=PyTorch&logoColor=white)
+![Python](https://img.shields.io/badge/python-3.9-blue.svg)
+![Python](https://img.shields.io/badge/python-3.10-blue.svg)
+![Python](https://img.shields.io/badge/python-3.11-blue.svg)
 ![Build](https://github.com/dscamiss/generalized-newtons-method/actions/workflows/python-package.yml/badge.svg)
+[![codecov](https://codecov.io/gh/dscamiss/generalized-newtons-method/graph/badge.svg?token=ZWTBITN49T)](https://codecov.io/gh/dscamiss/generalized-newtons-method)
 
 A PyTorch implementation of the "generalized Newton's method" for learning rate selection, proposed in [1].
 
