@@ -35,8 +35,7 @@ More theory and implementation notes can be found in [this blog post](https://ds
 
 Currently only the "exact version" of the method is implemented. A future version will implement the "approximate 
 version" of the method as well.  The difference between the two versions is that the "approximate version" trades off 
-accuracy for efficiency, since it does not materialize the Hessian-vector products needed to compute the denominator
-of $\alpha$.
+accuracy for efficiency, since it does not materialize the required Hessian-vector products.
 
 # Installation
 
