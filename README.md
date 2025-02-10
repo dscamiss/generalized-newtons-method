@@ -48,7 +48,7 @@ pip install generalized-newtons-method
 
 ## Setup
 
-```
+```python
 import generalized_newtons_method as gen
 model = MyModel()
 criterion = MyLossCriterion()
