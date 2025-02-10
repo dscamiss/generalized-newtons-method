@@ -1,4 +1,4 @@
-## generalized-newtons-method
+# `generalized-newtons-method`
 
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?logo=PyTorch&logoColor=white)
@@ -8,32 +8,49 @@
 ![Build](https://github.com/dscamiss/generalized-newtons-method/actions/workflows/python-package.yml/badge.svg)
 [![codecov](https://codecov.io/gh/dscamiss/generalized-newtons-method/graph/badge.svg?token=ZWTBITN49T)](https://codecov.io/gh/dscamiss/generalized-newtons-method)
 
-A PyTorch implementation of the "generalized Newton's method" for learning rate selection, proposed in [1].
+A PyTorch implementation of the generalized Newton's method, first proposed in [1].
 
-Theory and implementation notes can be found in [this blog post](https://dscamiss.github.io/blog/posts/generalized_newtons_method).
+# Brief background
+
+The generalized Newton's method is a learning rate scheduler that uses second-order derivative data.
+
+As a concrete example, suppose that our objective is to minimize the loss function $L: \Theta \to \mathbf{R}$ using
+vanilla SGD and a static learning rate $\alpha$.  One gradient descent iteration is $\theta_{t+1} \leftarrow \theta_t - \alpha \nabla_\theta L(\theta_t)$.
+For this iteration, introduce the "loss per learning rate" function 
+
+$$g(\alpha) = L(\theta_t - \alpha \nabla_\theta L(\theta_t)).$$  
+
+Towards the objective of minimizing $L$, we can attempt to choose $\alpha$ such that 
+$g$ is (approximately) minimized.  Provided that $g$ is well-approximated 
+near the origin by its second-order Taylor polynomial, and
+that this polynomial is strictly convex, the generalized Newton's method chooses
+
+$$\alpha_t = \frac{d_\theta L(\theta_t) \cdot \nabla_\theta L(\theta_t)}{d_\theta^2 L(\theta_t) \cdot (\nabla_\theta L(\theta_t), \nabla_\theta L(\theta_t))}.$$
+
+This choice of $\alpha_t$ minimizes the second-order Taylor polynomial, and therefore approximately minimizes $g$.
+
+More theory and implementation notes can be found in [this blog post](https://dscamiss.github.io/blog/posts/generalized_newtons_method).
+
+# Caveats
 
 Currently only the "exact version" of the method is implemented. A future version will implement the "approximate 
-version" of the method as well (the difference between the two versions is that the "approximate version" trades off 
-accuracy for efficiency, since it does not materialize Hessian-vector products).
+version" of the method as well.  The difference between the two versions is that the "approximate version" trades off 
+accuracy for efficiency, since it does not materialize the Hessian-vector products needed to compute the denominator
+of $\alpha$.
 
-## Installation
+# Installation
 
 ```bash
 git clone https://github.com/dscamiss/generalized-newtons-method
 pip install generalized-newtons-method
 ```
 
-## Usage
+# Usage
 
-* Make necessary imports:
+## Setup
 
-```python
+```
 import generalized_newtons_method as gen
-```
-
-* Make your model and loss criterion:
-
-```
 model = MyModel()
 criterion = MyLossCriterion()
 ```
@@ -50,6 +67,8 @@ optimizer = gen.make_gen_optimizer(torch.optim.AdamW, model.parameters())
 lr_min, lr_max = 0.0, 1e-3  # Clamp learning rate between `lr_min` and `lr_max`
 scheduler = gen.ExactGen(optimizer, model, criterion, lr_min, lr_max)
 ```
+
+## Training
 
 * Run standard training loop:
 
