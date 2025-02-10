@@ -81,12 +81,12 @@ for x, y in dataloader:
     optimizer.step()
 ```
 
-## TODO
+# TODO
 
 - [x] Add test cases to verify second-order coefficients
 - [ ] Add "approximate version"
 - [ ] Add shallow CNN training example
 
-## References
+# References
 
 [1] Zi Bu and Shiyun Xu, Automatic gradient descent with generalized Newton’s method, [arXiv:2407.02772](https://arxiv.org/abs/2407.02772)
